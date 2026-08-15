@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#17211c" />
+    <meta
+      name="description"
+      content="Glide — a living philosophy for intentional living."
+    />
+    <title>Glide — Your Living Philosophy</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <button class="brand" data-tab="beacons" aria-label="Go to Beacons">
+          <span class="brand-mark">G</span>
+          <span><b>Glide</b><small>Personal navigation</small></span>
+        </button>
+        <nav class="desktop-nav" aria-label="Primary navigation"></nav>
+        <p class="motto">Glide. Don’t grip.</p>
+      </header>
+
+      <section class="path-check">
+        <div>
+          <p class="kicker">A quiet check-in</p>
+          <h1>Where are you on the path?</h1>
+        </div>
+        <div class="status-actions">
+          <button data-status="beacons"><i class="dot green"></i>I’m centered</button>
+          <button data-status="drift"><i class="dot amber"></i>I’m drifting</button>
+          <button data-status="guide"><i class="dot red"></i>I’m activated</button>
+        </div>
+      </section>
+
+      <main id="content" tabindex="-1"></main>
+      <nav class="mobile-nav" aria-label="Primary navigation"></nav>
+    </div>
+
+    <dialog id="add-dialog">
+      <button class="dialog-close" aria-label="Close">×</button>
+      <p class="kicker">Growing philosophy</p>
+      <h2 id="dialog-title">Add a beacon</h2>
+      <form id="add-form"></form>
+    </dialog>
+
+    <div id="toast" role="status" aria-live="polite"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
