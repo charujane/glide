@@ -8,6 +8,30 @@ const DEFAULT_BEACONS = [
     practice: "Ask: What can I gently put down today so joy has more room?",
   },
   {
+    id: "moment-vote",
+    category: "Momentum",
+    title: "Every moment is a vote for the life I am creating.",
+    context:
+      "I do not arrive at joy in one leap, and I do not lose myself all at once. Each moment contributes a little momentum. Over time, these small votes become a way of living.",
+    practice: "Ask: What direction do I want this moment to strengthen?",
+  },
+  {
+    id: "upward-spiral",
+    category: "Momentum",
+    title: "I cultivate an upward spiral.",
+    context:
+      "My attention influences my breath, my nervous system, my energy, and the way I experience my day. When I notice safety, beauty, gratitude, curiosity, and possibility, my body begins to organize itself around those signals. One small act of noticing creates momentum for the next.",
+    practice: "Ask: What can I notice right now that reminds my nervous system it is safe? Stay with it for a few breaths.",
+  },
+  {
+    id: "momentum-over-intensity",
+    category: "Momentum",
+    title: "Momentum matters more than intensity.",
+    context:
+      "I do not need one extraordinary moment of peace. I need hundreds of small moments that gently reinforce the life I am building. Gentle repetition changes my lived experience more reliably than dramatic effort.",
+    practice: "Ask: Does this add one more step toward the life I am cultivating?",
+  },
+  {
     id: "stand-tall",
     category: "Courage",
     title: "I stand tall when life calls me.",
@@ -251,6 +275,13 @@ const DEFAULT_BEACONS = [
 
 const DEFAULT_SIGNALS = [
   {
+    id: "unwanted-momentum",
+    title: "I’m feeding momentum I don’t actually want.",
+    meaning:
+      "I have started giving repeated attention to fear, outrage, comparison, rumination, or urgency. None of these need to define my day, but repeated attention gives them momentum.",
+    beacon: "I cultivate an upward spiral.",
+  },
+  {
     id: "replay",
     title: "I’m replaying conversations.",
     meaning:
@@ -416,6 +447,13 @@ const DEFAULT_SIGNALS = [
 
 const DEFAULT_LIGHTHOUSES = [
   {
+    id: "emotional-climate",
+    title: "My presence changes the emotional climate.",
+    context:
+      "The inner climate I cultivate rarely stays contained within me. Calm, authenticity, hope, and steadiness ripple outward into my family, meetings, and relationships. I do not create safety by telling people to relax. I create it by embodying it.",
+    practice: "Before entering a room, ask: What climate do I want to contribute here? Then become the first example of it.",
+  },
+  {
     id: "response-window",
     title: "I lead from the response window.",
     context: "Other people’s reactions often tell me more about their nervous system than about my worth. I have a precious response window where I can choose curiosity over mirroring.",
@@ -509,6 +547,7 @@ const state = {
   activeBeacon: "attention",
   activeSignal: "replay",
   activeLighthouse: "response-window",
+  detailOpen: null,
   guide: null,
 };
 
@@ -530,6 +569,13 @@ const save = () => {
 
 function guidance(text) {
   const q = text.toLowerCase();
+  if (/(momentum|spiral|attention|focus|outrage|comparison|negativ|doom|bad news|what i consume|feeding|climate)/.test(q))
+    return [
+      "Your attention may be giving momentum to a climate you did not consciously choose.",
+      "This is not a demand to deny reality or force positivity. Perception does not determine everything, but it powerfully shapes your lived experience—your breath, nervous system, energy, and next choice. You can notice what is true without repeatedly feeding what you do not want to grow.",
+      "Every moment is a vote for the life I am creating.",
+      "Find one real signal of safety, beauty, gratitude, curiosity, or possibility. Stay with it for three breaths and let this moment cast one gentle vote in your chosen direction.",
+    ];
   if (/(food|eat|eating|scroll|numb|comfort|hide|avoid)/.test(q))
     return [
       "Comfort may be helping you turn down the volume on life’s invitation.",
@@ -642,12 +688,6 @@ function renderBeacons() {
             )
             .join("")}
         </div>
-        <aside class="detail-panel beacon-detail">
-          <i class="large-light green"></i><small>Your nearest beacon</small>
-          <h3>${escapeHtml(active.title)}</h3><hr>
-          <p>${escapeHtml(active.context)}</p>
-          <div class="practice"><small>Practice</small><strong>${escapeHtml(active.practice)}</strong></div>
-        </aside>
       </div>
     </section>`;
 }
@@ -669,14 +709,6 @@ function renderDrift() {
             )
             .join("")}
         </div>
-        <aside class="detail-panel signal-detail">
-          <i class="large-light red"></i><small>You noticed</small>
-          <h3>${escapeHtml(active.title)}</h3><hr>
-          <p>${escapeHtml(active.meaning)}</p>
-          <div class="practice"><small>Nearest beacon</small><strong>${escapeHtml(active.beacon)}</strong>
-            <button data-return="${escapeHtml(active.beacon)}">Return to this beacon</button>
-          </div>
-        </aside>
       </div>
     </section>`;
 }
@@ -692,12 +724,62 @@ function renderLighthouses() {
             <i class="lighthouse-light"></i><small>Influence</small><strong>${escapeHtml(item.title)}</strong><span>Open lighthouse →</span>
           </button>`).join("")}
         </div>
-        <aside class="detail-panel lighthouse-detail">
-          <i class="large-light violet"></i><small>How you illuminate</small><h3>${escapeHtml(active.title)}</h3><hr>
-          <p>${escapeHtml(active.context)}</p><div class="practice"><small>Practice</small><strong>${escapeHtml(active.practice)}</strong></div>
-        </aside>
       </div>
     </section>`;
+}
+
+function renderDetailOverlay() {
+  if (!state.detailOpen) return "";
+
+  const config = {
+    beacon: {
+      items: state.beacons,
+      activeId: state.activeBeacon,
+      panelClass: "beacon-detail",
+      lightClass: "green",
+      label: "Your nearest beacon",
+    },
+    signal: {
+      items: state.signals,
+      activeId: state.activeSignal,
+      panelClass: "signal-detail",
+      lightClass: "red",
+      label: "You noticed",
+    },
+    lighthouse: {
+      items: state.lighthouses,
+      activeId: state.activeLighthouse,
+      panelClass: "lighthouse-detail",
+      lightClass: "violet",
+      label: "How you illuminate",
+    },
+  }[state.detailOpen];
+
+  if (!config) return "";
+  const item = config.items.find((entry) => entry.id === config.activeId) || config.items[0];
+  const isSignal = state.detailOpen === "signal";
+  const body = isSignal ? item.meaning : item.context;
+  const practiceLabel = isSignal ? "Nearest beacon" : "Practice";
+  const practiceText = isSignal ? item.beacon : item.practice;
+  const returnButton = isSignal
+    ? `<button data-return="${escapeHtml(item.beacon)}">Return to this beacon</button>`
+    : "";
+
+  return `<div class="detail-overlay" role="dialog" aria-modal="true" aria-label="${escapeHtml(item.title)}">
+    <button class="detail-backdrop" data-close-detail aria-label="Close details"></button>
+    <article class="detail-modal detail-panel ${config.panelClass}">
+      <button class="detail-close" data-close-detail aria-label="Close details">×</button>
+      <i class="large-light ${config.lightClass}"></i>
+      <small>${config.label}</small>
+      <h3>${escapeHtml(item.title)}</h3><hr>
+      <p>${escapeHtml(body)}</p>
+      <div class="practice"><small>${practiceLabel}</small><strong>${escapeHtml(practiceText)}</strong>${returnButton}</div>
+      <div class="detail-actions">
+        <button class="detail-done" data-close-detail>Done</button>
+        <button class="detail-next" data-detail-next>Next item →</button>
+      </div>
+    </article>
+  </div>`;
 }
 
 function renderGrowing() {
@@ -757,7 +839,7 @@ function renderAnchors() {
 
 function render() {
   renderNav();
-  document.getElementById("content").innerHTML =
+  const page =
     state.tab === "beacons"
       ? renderBeacons()
       : state.tab === "drift"
@@ -769,10 +851,13 @@ function render() {
             : state.tab === "anchors"
               ? renderAnchors()
               : renderGrowing();
+  document.getElementById("content").innerHTML = page + renderDetailOverlay();
+  document.body.classList.toggle("detail-open", Boolean(state.detailOpen));
 }
 
 function setTab(tab) {
   state.tab = tab;
+  if (!['beacons', 'drift', 'lighthouses'].includes(tab)) state.detailOpen = null;
   render();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -805,14 +890,32 @@ document.addEventListener("click", (event) => {
   if (button.dataset.status) setTab(button.dataset.status);
   if (button.dataset.beacon) {
     state.activeBeacon = button.dataset.beacon;
+    state.detailOpen = "beacon";
     render();
   }
   if (button.dataset.signal) {
     state.activeSignal = button.dataset.signal;
+    state.detailOpen = "signal";
     render();
   }
   if (button.dataset.lighthouse) {
     state.activeLighthouse = button.dataset.lighthouse;
+    state.detailOpen = "lighthouse";
+    render();
+  }
+  if (button.hasAttribute("data-close-detail")) {
+    state.detailOpen = null;
+    render();
+  }
+  if (button.hasAttribute("data-detail-next")) {
+    const lists = {
+      beacon: [state.beacons, "activeBeacon"],
+      signal: [state.signals, "activeSignal"],
+      lighthouse: [state.lighthouses, "activeLighthouse"],
+    };
+    const [items, activeKey] = lists[state.detailOpen];
+    const currentIndex = items.findIndex((item) => item.id === state[activeKey]);
+    state[activeKey] = items[(currentIndex + 1) % items.length].id;
     render();
   }
   if (button.dataset.add) openDialog(button.dataset.add);
@@ -823,9 +926,11 @@ document.addEventListener("click", (event) => {
     const lighthouse = state.lighthouses.find((item) => item.title === button.dataset.return);
     if (found) {
       state.activeBeacon = found.id;
+      state.detailOpen = "beacon";
       setTab("beacons");
     } else if (lighthouse) {
       state.activeLighthouse = lighthouse.id;
+      state.detailOpen = "lighthouse";
       setTab("lighthouses");
     }
   }
@@ -891,4 +996,10 @@ document.getElementById("add-form").addEventListener("submit", (event) => {
 });
 
 document.querySelector(".brand").addEventListener("click", () => setTab("beacons"));
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && state.detailOpen) {
+    state.detailOpen = null;
+    render();
+  }
+});
 render();
