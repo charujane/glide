@@ -1,44 +1,23 @@
-# Glide — Your Personal Navigation System
+# Glide — Guided Listening
 
-Glide is a calm, mobile-first personal navigation system built around:
+This version keeps Glide's existing philosophy and PWA experience, and adds clean voice recording, private cloud upload, live ambience, playback controls, and cross-device audio metadata.
 
-- **Beacons** — the principles you are moving toward
-- **Early drift signals** — patterns that tell you when you are leaving your center
-- **Guide Me** — a reflection tool that returns your philosophy to you
-- **Lighthouses** — how your presence illuminates the path for others
-- **Anchors** — Vitality, Expansion, Stewardship, and Restoration
-- **Growing Philosophy** — emerging insights that are not ready to be fixed principles
+## One-time Vercel setup
 
-Everything works in the browser with no build step and no paid services.
-New beacons, drift signals, emerging insights, and anchor intentions are saved
-on the device where you add them. Built-in philosophy updates are merged in
-without overwriting your personal entries.
+1. Upload this project to GitHub and connect the repository to the existing Vercel project.
+2. In Vercel, open **Storage → Create Database → Blob**.
+3. Create a **Private** Blob store and connect it to this project. Vercel adds `BLOB_READ_WRITE_TOKEN` automatically.
+4. Open **Project Settings → Environment Variables** and add `GLIDE_AUDIO_PIN` with a private PIN only you know.
+5. Redeploy the project.
 
-## Preview it
+On first use in a browser session, Glide asks for this PIN before recording or playing cloud audio.
 
-Double-click `index.html`, or drag it into a browser window.
+## Audio behavior
 
-## Upload to GitHub Pages
-
-1. Create a new public repository in GitHub (for example, `glide`).
-2. Click **Add file → Upload files**.
-3. Drag the **contents** of this folder into GitHub. Upload the files and the
-   `images` folder—not the ZIP itself.
-4. Commit the files to the `main` branch.
-5. Open **Settings → Pages**.
-6. Under **Build and deployment**, select **Deploy from a branch**.
-7. Choose `main`, then `/(root)`, and save.
-
-GitHub will show the public site address when publishing finishes.
-
-## Important privacy note
-
-This starter includes two personal photos and personal philosophy text. A public
-GitHub repository makes both visible to anyone. Use a private repository with
-another host, or remove/replace the photos, if you do not want them public.
-
-## Update it later
-
-The default philosophy is in `app.js`. You can also add beacons and drift
-signals from inside the app; those additions stay only in that browser unless
-you later add cloud sync.
+- Voice is captured clean through the browser microphone.
+- Recordings upload directly to private Vercel Blob storage.
+- A private metadata record maps each philosophy item to its current recording URL.
+- Re-recording replaces the mapping and removes the prior cloud file.
+- Bowl and ambience are synthesized during playback and never baked into the voice file.
+- Ambient volume defaults to 15% and is adjustable independently.
+- The data model is keyed by philosophy item ID so a future Sessions feature can queue multiple items without changing stored recordings.

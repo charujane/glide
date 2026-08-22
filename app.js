@@ -1,3 +1,5 @@
+import { audioStudioMarkup, bindAudioStudio, stopAudioSession } from "./audio.js";
+
 const DEFAULT_BEACONS = [
   {
     id: "home-joyful-space",
@@ -759,8 +761,10 @@ function renderDetailOverlay() {
   const item = config.items.find((entry) => entry.id === config.activeId) || config.items[0];
   const isSignal = state.detailOpen === "signal";
   const body = isSignal ? item.meaning : item.context;
-  const practiceLabel = isSignal ? "Nearest beacon" : "Practice";
-  const practiceText = isSignal ? item.beacon : item.practice;
+  const practiceLabel = "Reflection prompt";
+  const practiceText = isSignal
+    ? `What is this signal asking me to stop feeding—and what would an early return to “${item.beacon}” look like?`
+    : item.practice;
   const returnButton = isSignal
     ? `<button data-return="${escapeHtml(item.beacon)}">Return to this beacon</button>`
     : "";
@@ -772,7 +776,8 @@ function renderDetailOverlay() {
       <i class="large-light ${config.lightClass}"></i>
       <small>${config.label}</small>
       <h3>${escapeHtml(item.title)}</h3><hr>
-      <p>${escapeHtml(body)}</p>
+      ${audioStudioMarkup(item.id)}
+      <div class="transcript-block"><small>Transcript</small><p>${escapeHtml(body)}</p></div>
       <div class="practice"><small>${practiceLabel}</small><strong>${escapeHtml(practiceText)}</strong>${returnButton}</div>
       <div class="detail-actions">
         <button class="detail-done" data-close-detail>Done</button>
@@ -853,6 +858,7 @@ function render() {
               : renderGrowing();
   document.getElementById("content").innerHTML = page + renderDetailOverlay();
   document.body.classList.toggle("detail-open", Boolean(state.detailOpen));
+  bindAudioStudio();
 }
 
 function setTab(tab) {
@@ -904,10 +910,12 @@ document.addEventListener("click", (event) => {
     render();
   }
   if (button.hasAttribute("data-close-detail")) {
+    stopAudioSession();
     state.detailOpen = null;
     render();
   }
   if (button.hasAttribute("data-detail-next")) {
+    stopAudioSession();
     const lists = {
       beacon: [state.beacons, "activeBeacon"],
       signal: [state.signals, "activeSignal"],
@@ -998,6 +1006,7 @@ document.getElementById("add-form").addEventListener("submit", (event) => {
 document.querySelector(".brand").addEventListener("click", () => setTab("beacons"));
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && state.detailOpen) {
+    stopAudioSession();
     state.detailOpen = null;
     render();
   }
