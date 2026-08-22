@@ -10,6 +10,9 @@ let metadataLoaded = false;
 let activeItemId = null;
 let mediaRecorder = null;
 let recordingStream = null;
+let recordingItemId = null;
+let recordingCompletion = null;
+let resolveRecordingCompletion = null;
 let chunks = [];
 let localBlob = null;
 let objectUrl = null;
@@ -127,17 +130,29 @@ async function beginRecording() {
   }
   recordingStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
   const mimeType = preferredMimeType();
+  recordingItemId = activeItemId;
+  recordingCompletion = new Promise((resolve) => { resolveRecordingCompletion = resolve; });
   mediaRecorder = new MediaRecorder(recordingStream, mimeType ? { mimeType } : undefined);
   chunks = [];
   mediaRecorder.ondataavailable = (event) => { if (event.data.size) chunks.push(event.data); };
   mediaRecorder.onstop = async () => {
-    localBlob = new Blob(chunks, { type: mediaRecorder.mimeType || mimeType || "audio/webm" });
+    const itemId = recordingItemId;
+    const completedBlob = new Blob(chunks, { type: mediaRecorder.mimeType || mimeType || "audio/webm" });
+    if (activeItemId === itemId) localBlob = completedBlob;
     recordingStream?.getTracks().forEach((track) => track.stop());
     recordingStream = null;
-    byAction("record").disabled = false;
-    byAction("stop-recording").disabled = true;
-    updateStudio();
-    await uploadRecording().catch((error) => setStatus(error.message, "error"));
+    if (activeItemId === itemId && studio()) {
+      byAction("record").disabled = false;
+      byAction("stop-recording").disabled = true;
+      updateStudio();
+    }
+    try {
+      await uploadRecording(completedBlob, itemId);
+      resolveRecordingCompletion?.(true);
+    } catch (error) {
+      if (activeItemId === itemId) setStatus(`${error.message} Keep this overlay open and try recording again.`, "error");
+      resolveRecordingCompletion?.(false);
+    }
   };
   mediaRecorder.start(500);
   byAction("record").disabled = true;
@@ -149,29 +164,31 @@ function stopRecording() {
   if (mediaRecorder?.state === "recording") mediaRecorder.stop();
 }
 
-async function uploadRecording() {
-  if (!localBlob) return;
+async function uploadRecording(recordedBlob, itemId) {
+  if (!recordedBlob || !itemId) throw new Error("The recording could not be prepared.");
   setStatus("Uploading privately…", "working");
-  const type = localBlob.type || "audio/webm";
+  const type = recordedBlob.type || "audio/webm";
   const ext = extensionFor(type);
-  const filename = `glide-audio/${activeItemId}/${Date.now()}.${ext}`;
-  const file = new File([localBlob], filename.split("/").pop(), { type });
+  const filename = `glide-audio/${itemId}/${Date.now()}.${ext}`;
+  const file = new File([recordedBlob], filename.split("/").pop(), { type });
   const blob = await upload(filename, file, {
     access: "private",
     handleUploadUrl: "/api/upload",
-    clientPayload: JSON.stringify({ pin: getPin(), itemId: activeItemId }),
+    clientPayload: JSON.stringify({ pin: getPin(), itemId }),
   });
   const record = {
     url: blob.url,
     pathname: blob.pathname,
     contentType: blob.contentType || type,
-    size: blob.size || localBlob.size,
+    size: blob.size || recordedBlob.size,
     updatedAt: new Date().toISOString(),
   };
-  await api("/api/audio", { method: "POST", body: JSON.stringify({ action: "save", itemId: activeItemId, record }) });
-  metadata[activeItemId] = record;
-  setStatus("Saved privately to your voice library.", "saved");
-  updateStudio();
+  await api("/api/audio", { method: "POST", body: JSON.stringify({ action: "save", itemId, record }) });
+  metadata[itemId] = record;
+  if (activeItemId === itemId) {
+    setStatus("Saved privately to your voice library.", "saved");
+    updateStudio();
+  }
 }
 
 async function deleteRecording() {
@@ -342,6 +359,22 @@ export function stopAudioSession() {
   audio.pause();
   stopAmbience();
   if (mediaRecorder?.state === "recording") mediaRecorder.stop();
+}
+
+export async function finishAudioStudio() {
+  playbackGeneration += 1;
+  audio.pause();
+  stopAmbience();
+  if (mediaRecorder?.state === "recording") {
+    setStatus("Stopping and saving your recording…", "working");
+    mediaRecorder.stop();
+  }
+  if (recordingCompletion) {
+    setStatus("Saving your recording before closing…", "working");
+    const saved = await recordingCompletion;
+    if (!saved) return false;
+  }
+  return true;
 }
 
 export function bindAudioStudio() {

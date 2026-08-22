@@ -1,4 +1,4 @@
-import { audioStudioMarkup, bindAudioStudio, stopAudioSession } from "./audio.js";
+import { audioStudioMarkup, bindAudioStudio, finishAudioStudio, stopAudioSession } from "./audio.js";
 
 const DEFAULT_BEACONS = [
   {
@@ -889,7 +889,7 @@ function openDialog(mode) {
   dialog.showModal();
 }
 
-document.addEventListener("click", (event) => {
+document.addEventListener("click", async (event) => {
   const button = event.target.closest("button");
   if (!button) return;
   if (button.dataset.tab) setTab(button.dataset.tab);
@@ -910,12 +910,28 @@ document.addEventListener("click", (event) => {
     render();
   }
   if (button.hasAttribute("data-close-detail")) {
-    stopAudioSession();
+    const originalLabel = button.textContent;
+    button.disabled = true;
+    if (button.classList.contains("detail-done")) button.textContent = "Saving…";
+    const readyToClose = await finishAudioStudio();
+    if (!readyToClose) {
+      button.disabled = false;
+      button.textContent = originalLabel;
+      return;
+    }
     state.detailOpen = null;
     render();
   }
   if (button.hasAttribute("data-detail-next")) {
-    stopAudioSession();
+    const originalLabel = button.textContent;
+    button.disabled = true;
+    button.textContent = "Saving…";
+    const readyToContinue = await finishAudioStudio();
+    if (!readyToContinue) {
+      button.disabled = false;
+      button.textContent = originalLabel;
+      return;
+    }
     const lists = {
       beacon: [state.beacons, "activeBeacon"],
       signal: [state.signals, "activeSignal"],
@@ -1004,9 +1020,10 @@ document.getElementById("add-form").addEventListener("submit", (event) => {
 });
 
 document.querySelector(".brand").addEventListener("click", () => setTab("beacons"));
-document.addEventListener("keydown", (event) => {
+document.addEventListener("keydown", async (event) => {
   if (event.key === "Escape" && state.detailOpen) {
-    stopAudioSession();
+    const readyToClose = await finishAudioStudio();
+    if (!readyToClose) return;
     state.detailOpen = null;
     render();
   }

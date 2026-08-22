@@ -1,4 +1,4 @@
-const CACHE = "glide-pwa-v4";
+const CACHE = "glide-pwa-v5";
 const APP_SHELL = [
   "/",
   "/index.html",
