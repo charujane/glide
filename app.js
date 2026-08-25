@@ -34,6 +34,62 @@ const DEFAULT_BEACONS = [
     practice: "Ask: Does this add one more step toward the life I am cultivating?",
   },
   {
+    id: "fit-framework-to-me",
+    category: "Body Wisdom",
+    title: "I adapt frameworks to fit my body. I do not contort my body to fit frameworks.",
+    context:
+      "I spent years trying to contort my body to fit clothes. I eventually became freer when I reversed the relationship: I buy clothes that fit and honor my body rather than trying to make my body fit a predetermined size. I want to bring that same freedom to food. A framework like 18:6 or 16:8 is a tool, not something my body has to obey. If thinking about a fasting window makes me overeat because I am afraid of becoming hungry later, the framework is not serving me in that form. What ultimately matters is learning what leaves my particular body nourished, energized, light and satisfied.",
+    practice: "Ask: What framework fits and honors my body today?",
+  },
+  {
+    id: "satisfy-hunger-fire",
+    category: "Nourishment",
+    title: "Respond to the hunger that actually exists.",
+    context:
+      "Vinoja told me that sometimes at night she has one rye cracker simply to give her hunger fire something, and then she feels content. That inspired me because I often interpret hunger as: I need a full meal now so I can stop eating for a long time afterward. There is another possibility. Notice the hunger. Give it what it needs. Notice satisfaction. Stop. Food can be available without needing to be consumed preemptively.",
+    practice: "Notice hunger. Offer enough. Notice satisfaction. Stop.",
+  },
+  {
+    id: "one-gentle-step",
+    category: "Navigation",
+    title: "Clear intention. One gentle step. Then another.",
+    context:
+      "During an overnight awakening, I wanted to return to sleep. I elevated my head so I could breathe comfortably, listened to the gentle gong from my breathing app, and focused on one breath at a time. Thoughts came. My attention wandered. I did not castigate myself or doubt my ability. I applauded myself for having a clear intention. Then I simply returned and took the next step well. I eventually had beautiful sleep. Wandering is not failure. Know the intention. Do the next thing well. Return gently.",
+    practice: "Name the intention. Do the next thing well. Return gently.",
+  },
+  {
+    id: "true-co-creator",
+    category: "Creation",
+    title: "I am here to be a true co-creator.",
+    context:
+      "I experience life as a relationship with something larger than myself. Challenges can reveal sticking points—places where fear, resistance, or old patterns remain. Instead of asking only, ‘Why is this happening to me?’ I can ask: What wants to become freer through this? My role is not simply to receive life. I want to participate in its creation—to become freer, more open, and more capable of channeling the gifts available through me.",
+    practice: "Ask: What wants to become freer through this?",
+  },
+  {
+    id: "creation-through-relationship",
+    category: "Relationship",
+    title: "I don’t command the system I inhabit. I collaborate with it.",
+    context:
+      "I am consciousness, and I am also my tissues. I see this as fractal. At another scale there are people, creatures, objects, environments and systems within my purview. To change a state, I don’t have to dominate all of its parts. We can work together. This applies to my body, my family, leadership, teams and my environment. Creation happens through relationship rather than control.",
+    practice: "Collaborate with the body, person, or system instead of commanding it.",
+  },
+  {
+    id: "cultivate-guide",
+    category: "Guidance",
+    title: "Cultivate the presence of a guide.",
+    context:
+      "I want to become someone whose energy and presence naturally make people want to reach out for guidance. I don’t need to convince people that I am a guide or perform wisdom for them. I cultivate clarity, listening, articulation, presence, generosity and wisdom. When someone reaches out, I help them see more clearly and find their own way forward.",
+    practice: "Listen closely. Help the person see clearly and find their own way forward.",
+  },
+  {
+    id: "observer-glides",
+    category: "Observer",
+    title: "Gentle intention is not weak intention.",
+    context:
+      "I am discovering that forceful control often creates more resistance. My observer can know exactly where I want to go while remaining gentle about how I get there. When attention wanders, I return. When something doesn’t work, I adjust. I don’t turn deviation into self-doubt. The observer glides: clear in direction, light-handed in execution, and trusting in the return.",
+    practice: "Hold direction clearly. Execute lightly. Trust the return.",
+  },
+  {
     id: "stand-tall",
     category: "Courage",
     title: "I stand tall when life calls me.",
