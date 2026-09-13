@@ -1,4 +1,4 @@
-const CACHE = "glide-pwa-v6";
+const CACHE = "glide-pwa-v14";
 const APP_SHELL = [
   "/",
   "/index.html",
@@ -52,4 +52,30 @@ self.addEventListener("fetch", (event) => {
       })
     )
   );
+});
+
+self.addEventListener("push", (event) => {
+  const message = event.data?.json?.() || {};
+  event.waitUntil(self.registration.showNotification(message.title || "Voice before comfort", {
+    body: message.body || "What is asking to be spoken right now?",
+    icon: "/icons/icon-192.png",
+    badge: "/icons/icon-192.png",
+    tag: message.tag || "glide-voice-checkin",
+    renotify: true,
+    data: { url: message.url || "/?checkin=voice" },
+  }));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const destination = new URL(event.notification.data?.url || "/?checkin=voice", self.location.origin).href;
+  event.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(async (clients) => {
+    const existing = clients[0];
+    if (existing) {
+      await existing.focus();
+      existing.postMessage({ type: "OPEN_VOICE_CHECKIN" });
+      return;
+    }
+    return self.clients.openWindow(destination);
+  }));
 });

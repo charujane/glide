@@ -1,4 +1,13 @@
-import { audioStudioMarkup, bindAudioStudio, finishAudioStudio, stopAudioSession } from "./audio.js";
+import {
+  audioStudioMarkup,
+  bindAudioStudio,
+  finishAudioStudio,
+  getRecordingPin,
+  playSavedVoiceNote,
+  saveVoiceNoteBlob,
+  stopAudioSession,
+  unlockRecordingPin,
+} from "./audio.js";
 
 const DEFAULT_BEACONS = [
   {
@@ -8,6 +17,47 @@ const DEFAULT_BEACONS = [
     context:
       "Joy becomes available when I stop organizing every moment around vigilance, performance, and survival. Fear may visit, but it is not my home.",
     practice: "Ask: What can I gently put down today so joy has more room?",
+  },
+  {
+    id: "voice-before-comfort",
+    category: "Expression",
+    title: "When discomfort arises, I pause and give it voice before seeking comfort.",
+    context:
+      "When I feel activated, blocked, overwhelmed, lonely, disconnected, or emotionally uncomfortable, comfort may not be what I need first. I can pause long enough to notice whether something inside me wants expression. I do not have to solve it, explain it perfectly, or force an answer. I simply give it a chance to have a voice.",
+    practice: "Ask: What is asking to be spoken right now?",
+  },
+  {
+    id: "energy-rightful-direction",
+    category: "Stewardship",
+    title: "My intensity is energy looking for its rightful direction. I don’t have to spend it on whatever happens to be in front of me.",
+    context: `There is a powerful drive in me—to search, understand, create, solve, build, and go deep.
+
+Sometimes that energy attaches itself to something small, and I can mistake the intensity of the drive for the importance of the task.
+
+I don’t need to suppress this energy. And I don’t need to obey it.
+
+I am learning to steward it.
+
+My purpose may not arrive as one grand revelation. I can discover it by noticing, over time, where this energy repeatedly wants to go.
+
+PARKING THE FIRE
+
+1. Stop. Put down the phone or step away from what I am doing.
+
+2. Feel the fire. For about 20 seconds, notice the intensity in my body without trying to discharge it.
+
+3. Name what it grabbed: “My energy grabbed ________.”
+
+4. Ask once: What might this energy actually want to move toward?
+
+5. If something comes up, capture one sentence or a short voice note. Do not investigate it further.
+
+6. Place a hand over my chest and close: “I am not extinguishing this. I am parking the fire. It will still be here tomorrow.”
+
+Then leave the activity.
+
+Do not immediately redirect the energy into researching my purpose or another problem. The purpose of Parking the Fire is to experience having intense energy without needing to spend it.`,
+    practice: "What is this energy actually trying to move toward? Ask once, capture one sentence if it comes, and leave the activity. I am not extinguishing this. I am parking the fire. It will still be here tomorrow.",
   },
   {
     id: "moment-vote",
@@ -34,6 +84,39 @@ const DEFAULT_BEACONS = [
     practice: "Ask: Does this add one more step toward the life I am cultivating?",
   },
   {
+    id: "unblocked-river",
+    category: "Flow",
+    title: "Life flows where I stop damming my own energy.",
+    context:
+      "Sometimes my energy becomes trapped behind fear, overthinking, unnecessary obligations, or trying to satisfy expectations that aren’t mine. When those blockers fall away, my energy naturally flows toward what feels alive. This became vivid during a severe rainstorm after I received weather warnings and drove home from Costco. When I got into the car, I discovered that the trunk wasn’t properly closed and had to get back into the rain to close it. I deliberately reframed the annoyance and thought that perhaps those few extra seconds had a reason. Shortly afterward, a huge lightning strike hit the road immediately ahead of my car. I experienced it as an extraordinarily close call and a moment of profound clarity. What stayed with me was how quickly the unnecessary fell away. Fear, expectations, and things that don’t deserve my life suddenly seemed much less important. I felt my own energy becoming unblocked.",
+    practice:
+      "Ask: What is blocking my energy today? If that blocker were gone, where would my energy naturally go? Does this deserve my life? Is this coming from my authentic self or from an old pattern?",
+  },
+  {
+    id: "shared-wonder",
+    category: "Connection",
+    title: "Connection grows through shared wonder.",
+    context:
+      "Some of my deepest connection with my kids comes from shared curiosity—walking outside, noticing trees and water, collecting seeds, playing little games, and talking without rush. I don’t need elaborate plans. I need moments of shared noticing. This Beacon came alive during a walk with my daughter at Holy Trinity School while my son was at soccer practice. We walked for more than an hour through beautiful surroundings. We talked about the new school year and did affirmations together. We noticed the smell of the trees and a clear running stream and listened to the sound of the water. We collected interesting things from nature, played catch with a bean or pod we found, and collected seeds to plant at home. Later that night, my daughter told me that the walk was the highlight of her day. This is what Shared Wonder feels like to me: nature, movement, curiosity, play, conversation, and presence.",
+    practice: "Ask: Where could we wonder together today?",
+  },
+  {
+    id: "prepare-for-joy",
+    category: "Joy",
+    title: "I prepare for joy.",
+    context:
+      "Small preparations make spontaneous joy easier. A play kit in the car means that when life offers us an opportunity to play badminton, pickleball, or simply stay outside longer, it is easier to say yes.",
+    practice: "Ask: What small preparation would help me say yes when opportunity appears?",
+  },
+  {
+    id: "authentic-current",
+    category: "Authenticity",
+    title: "When I stop giving energy to what isn’t truly mine, my authentic life emerges naturally.",
+    context:
+      "During a severe rainstorm after I received weather warnings, I drove home from Costco. When I got into the car, I discovered that the trunk wasn’t properly closed and had to get back into the rain to close it. I deliberately reframed the annoyance and thought that perhaps those few extra seconds had a reason. Shortly afterward, a huge lightning strike hit the road immediately ahead of my car. I experienced it as an extraordinarily close call and a moment of profound clarity. What stayed with me was how quickly the unnecessary fell away. Fear, expectations, and things that don’t deserve my life suddenly seemed much less important. I felt my own energy becoming unblocked. When I release what comes from fear, expectation, or an old pattern, the current of my authentic life does not need to be forced. It emerges naturally.",
+    practice: "Ask: Does this deserve my life? Is this coming from my authentic self or from an old pattern?",
+  },
+  {
     id: "fit-framework-to-me",
     category: "Body Wisdom",
     title: "I adapt frameworks to fit my body. I do not contort my body to fit frameworks.",
@@ -48,6 +131,15 @@ const DEFAULT_BEACONS = [
     context:
       "Vinoja told me that sometimes at night she has one rye cracker simply to give her hunger fire something, and then she feels content. That inspired me because I often interpret hunger as: I need a full meal now so I can stop eating for a long time afterward. There is another possibility. Notice the hunger. Give it what it needs. Notice satisfaction. Stop. Food can be available without needing to be consumed preemptively.",
     practice: "Notice hunger. Offer enough. Notice satisfaction. Stop.",
+  },
+  {
+    id: "hoarding-daemon",
+    category: "Nourishment",
+    title: "I don’t need to eat tomorrow’s food tonight. Tomorrow’s hunger belongs to tomorrow’s me.",
+    context:
+      "Sometimes in the evening I feel like a hoarding daemon—as though I need to prepare for a coming famine. There are two different signals I want to learn to distinguish. Physical hunger: my body is asking for nourishment right now. The hoarding daemon: ‘The eating window is closing. This is your last chance. Eat enough now so you won’t be hungry later.’ The second signal is anticipatory scarcity, not necessarily present-moment hunger. Rigid ideas such as 18:6 can amplify this for me. I start provisioning against future hunger rather than responding to the body I actually have in this moment. I don’t need to suppress the daemon or fight with it. I can notice it. I can eat enough to satisfy the hunger that actually exists, pause, and notice whether I am satisfied, still light, and still physically hungry—or trying to prevent tomorrow’s hunger. My desired evening state is not maximum fullness. It is satisfied, nourished, light, and sleep-ready. This connects to another principle I already hold: I do not need to solve tomorrow tonight.",
+    practice:
+      "Ask: How hungry is my body right now? How loud is the hoarding daemon? Eat enough for the hunger that exists, pause, and ask: Am I satisfied? Do I still feel light? Is my body still hungry? Or am I trying to prevent tomorrow’s hunger?",
   },
   {
     id: "one-gentle-step",
@@ -183,7 +275,7 @@ const DEFAULT_BEACONS = [
     title: "I choose what I pick up.",
     context:
       "Not every urgency, opinion, responsibility, or emotional charge deserves residency in my mind. My attention is mine to place.",
-    practice: "Ask: Does this deserve my energy?",
+    practice: "Ask: Does this deserve my energy? Optional deeper reflection: Is this worthy of my life?",
   },
   {
     id: "observer",
@@ -505,6 +597,98 @@ const DEFAULT_SIGNALS = [
 
 const DEFAULT_LIGHTHOUSES = [
   {
+    id: "how-i-walk-purpose",
+    title: "I am not walking toward some distant summit where my life will finally become meaningful. How I walk is my purpose.",
+    context: `WHAT I WANT TO REMEMBER
+
+This Lighthouse came from a morning when I woke with a familiar heaviness in my chest—a gloomy, constricted feeling that felt like carrying luggage. This feeling has visited me many times.
+
+Part of it may be grief for what I did not receive growing up. I did not experience my life force simply being cherished as precious. I learned, implicitly, that value came from being useful, accomplishing something, doing something worthwhile, or proving myself.
+
+That old equation can still appear:
+
+Useful = valuable.
+Achievement = purpose.
+Struggle = seriousness.
+Suffering = a meaningful life.
+Joy and spaciousness = dilly-dallying.
+
+But these are inherited equations. I do not have to organize my life around them.
+
+On this particular morning, I was also confronting the contrast between my life and the lives of people around me. Some people I love are struggling. Some people seem freer or more untethered than I feel. Comparison makes my own drag feel heavier.
+
+But while walking outside, something became very clear: My life is already happening.
+
+I was walking because I wanted to walk. I could feel the breeze against my skin. I was looking at plants, insects, sunlight and color. I felt myself becoming lighter.
+
+This is not what I do while waiting for my real life to begin. This is my life.
+
+I don't have to earn the right to enjoy it. I don't have to add enough value to humanity to justify my existence. I don't have to discover and fulfill some cosmic duty before I can say that my life mattered.
+
+I am already precious. I am already a life force worthy of being cherished.
+
+My purpose is not a verdict waiting for me at the end of my life. My purpose is expressed in how I walk through my life: how deeply I inhabit it; how honestly I listen to myself; how freely I express myself; how much room I give to curiosity, creation, connection, love, beauty, music, nature, rest and joy; and how courageously I follow what feels genuinely alive in me.
+
+JOY IS MY TRAINING GROUND
+
+Joy is not a distraction from purpose. Joy is my training ground.
+
+This is particularly important for me because allowing joy, spaciousness and apparently “unproductive” time can sometimes make me feel purposeless. I am learning another way.
+
+When I give my joy room, I become more connected to myself. From that connection, I can hear what repeatedly calls me.
+
+Purpose does not require torture. Purpose may require commitment, perseverance, discipline, frustration, repetition and doing difficult things. But suffering is not evidence that I am living meaningfully.
+
+I already possess enormous drive and perseverance. I do not need to manufacture struggle. I need to learn where I genuinely want to direct my life force.
+
+Joy helps me hear. Purpose gives me direction. Commitment carries me when joy temporarily isn't there.
+
+DIRECTION OVER DRAG
+
+There may still be drag. Grief may arise. Heaviness may arise. Dread may arise. Old conditioning may arise. Comparison may arise. I do not need to become completely untethered before I am allowed to run.
+
+The drag can exist without steering my life. Its return does not mean I have failed or gone backward.
+
+When I notice the drag, I do not need to investigate it endlessly, fear it, numb it, or make eliminating it my project. I can acknowledge it: There is the drag. And then ask: Where is my direction?
+
+Sometimes the drag may even be useful information. It can remind me to look at whether I have drifted away from my own life—whether joy, expression, connection, creativity or something deeply alive in me needs more room.
+
+The drag is a signal, not a verdict. I can cherish the part of me carrying the weight while continuing to move toward my own life.
+
+It came back. And I kept moving. That is freedom.
+
+WHEN I START COMPARING
+
+Other people may appear untethered. They are living their lives. I am living mine. I don't need their experience in order for mine to be beautiful.
+
+Comparison takes my attention away from the extraordinary life already happening around and within me. Return to my own path. Return to what I love. Return to what wants expression. Return to this moment.
+
+THE PRACTICE
+
+When I feel gloomy, heavy, constrained or purposeless:
+
+1. Notice the drag. I don't need to immediately explain or eliminate it.
+
+2. Give it compassion. I can say: I feel you. You are allowed to be here.
+
+3. Don't give it the whole field. Look around. What else is here? What is beautiful? What is alive? What wants my attention?
+
+4. Ask: Where is my direction? What part of me wants more room to live right now?
+
+5. Take one step toward my own life. Not toward proving myself. Not toward earning value. Toward living.
+
+REMEMBER
+
+I cherish my life force when it is productive and when it is resting. When it is exuberant and when it is gloomy. When it is creating something extraordinary and when it simply wants to feel the breeze.
+
+I don't have to prove my value. I don't have to fulfill a cosmic duty. I don't have to reach a distant summit.
+
+The way I walk is the life. The way I walk is the practice. The way I walk is my purpose.
+
+I am already precious. Now I get to live.`,
+    practice: "There is the drag. I feel you. You are allowed to be here. Where is my direction? What part of me wants more room to live right now?",
+  },
+  {
     id: "emotional-climate",
     title: "My presence changes the emotional climate.",
     context:
@@ -565,6 +749,7 @@ const DEFAULT_GROWING = [
 ];
 
 const NAV = [
+  ["hearth", "Hearth", "Take one step"],
   ["beacons", "Beacons", "Move toward"],
   ["drift", "Drift signals", "Notice early"],
   ["guide", "Guide me", "Find the next step"],
@@ -572,6 +757,89 @@ const NAV = [
   ["anchors", "Anchors", "Nourish life"],
   ["growing", "Growing", "Let wisdom evolve"],
 ];
+
+const HEARTH_GROUPS = [
+  {
+    id: "connect",
+    icon: "💛",
+    title: "Connect",
+    actions: [
+      ["hug-maya", "Hug Maya"],
+      ["hug-samir", "Hug Samir"],
+      ["curious-question", "Ask one curious question"],
+      ["walk-together", "Go for a 10-minute walk together"],
+      ["shared-wonder", "Create one moment of shared wonder"],
+    ],
+  },
+  {
+    id: "voice",
+    icon: "🎙️",
+    title: "Give it a Voice",
+    actions: [
+      ["talk-chatgpt", "Talk with ChatGPT"],
+      ["voice-note", "Record a 2-minute voice note"],
+      ["journal-five", "Journal for 5 minutes"],
+      ["unsaid-sentence", "Write the one sentence I haven’t said yet"],
+      ["schedule-conversation", "Schedule the conversation if now isn’t the right time"],
+    ],
+  },
+  {
+    id: "ground",
+    icon: "🌳",
+    title: "Ground",
+    actions: [
+      ["step-outside", "Step outside"],
+      ["walk-ten", "Walk for 10 minutes"],
+      ["look-trees", "Look at trees"],
+      ["look-birds", "Look for birds"],
+      ["five-beautiful-things", "Notice five beautiful things"],
+      ["sit-water", "Sit beside water if available"],
+    ],
+  },
+  {
+    id: "restore",
+    icon: "🍵",
+    title: "Restore",
+    actions: [
+      ["drink-water", "Drink a glass of water"],
+      ["tulsi-tea", "Make Tulsi tea"],
+      ["nourishing-meal", "Eat a nourishing meal if physically hungry"],
+      ["stretch-two", "Stretch for 2 minutes"],
+      ["breathing-gong", "Do my breathing practice with the gong"],
+      ["short-nap", "Take a short nap if I’m tired"],
+    ],
+  },
+  {
+    id: "create",
+    icon: "🎨",
+    title: "Create",
+    actions: [
+      ["crochet-fifteen", "Crochet for 15 minutes"],
+      ["build-glide", "Build my Glide app"],
+      ["magazine-article", "Read one magazine article"],
+      ["leadership-beacon", "Listen to one Leadership Beacon"],
+      ["articulation-run", "Practice one 20-second articulation run"],
+    ],
+  },
+  {
+    id: "perspective",
+    icon: "🧠",
+    title: "Return to Perspective",
+    actions: [
+      ["return-hearth", "Return to the hearth."],
+      ["deserves-energy", "Ask: What deserves my energy right now?"],
+      ["today-or-memory", "Ask: Am I responding to today or to an old memory?"],
+      ["asking-spoken", "Ask: What is asking to be spoken?"],
+      ["physical-or-comfort", "Ask: Is this physical hunger or emotional comfort?"],
+      ["remember-agency", "Remember: I have agency."],
+      ["remember-enough", "Remember: There is enough."],
+    ],
+  },
+];
+
+const ALL_HEARTH_ACTIONS = HEARTH_GROUPS.flatMap((group) =>
+  group.actions.map(([id, label]) => ({ id, label, groupId: group.id, groupTitle: group.title, icon: group.icon })),
+);
 
 const ANCHORS = [
   ["Vitality", "What would help me feel strong and deeply connected to my body?", "Move, nourish, breathe, sleep."],
@@ -595,6 +863,23 @@ const loadAndMerge = (key, defaults) => {
   return [...stored, ...defaults.filter((item) => !storedIds.has(item.id))];
 };
 
+const DEFAULT_VOICE_SETTINGS = {
+  enabled: false,
+  rhythm: "daily",
+  customTimes: [],
+  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
+};
+
+const savedVoiceSettings = load("glide-voice-checkin-settings-v1", DEFAULT_VOICE_SETTINGS);
+const initialVoiceCheckinOpen = new URLSearchParams(window.location.search).get("checkin") === "voice";
+const localDateKey = (date = new Date()) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+const todayKey = localDateKey();
+const morningHour = new Date().getHours();
+const shouldOpenMorning = morningHour >= 4 && morningHour < 12
+  && load("glide-morning-greeting-last-shown-v1", "") !== todayKey
+  && !initialVoiceCheckinOpen;
+
 const state = {
   tab: "beacons",
   beacons: loadAndMerge("glide-beacons-v1", DEFAULT_BEACONS),
@@ -607,7 +892,53 @@ const state = {
   activeLighthouse: "response-window",
   detailOpen: null,
   guide: null,
+  hearthFeedback: load("glide-hearth-feedback-v1", {}),
+  hearthAction: null,
+  voiceSettings: { ...DEFAULT_VOICE_SETTINGS, ...savedVoiceSettings },
+  voiceEntries: load("glide-voice-checkin-entries-v1", []),
+  voiceCheckinOpen: initialVoiceCheckinOpen,
+  voiceCheckinMode: null,
+  voiceCheckinStatus: "",
+  morningOpen: shouldOpenMorning,
+  morningMode: null,
+  morningStatus: "",
+  morningEntries: load("glide-morning-reflections-v1", []),
+  energyObservations: load("glide-energy-observations-v1", []),
+  energyStatus: "",
 };
+
+// Put this new Lighthouse first once for existing browsers, without changing or replacing saved items.
+const storedLighthouses = load("glide-lighthouses-v1", []);
+if (!Array.isArray(storedLighthouses) || !storedLighthouses.some((item) => item.id === "how-i-walk-purpose")) {
+  const newLighthouse = state.lighthouses.find((item) => item.id === "how-i-walk-purpose");
+  state.lighthouses = [newLighthouse, ...state.lighthouses.filter((item) => item.id !== "how-i-walk-purpose")];
+  localStorage.setItem("glide-lighthouses-v1", JSON.stringify(state.lighthouses));
+}
+
+if (state.morningOpen) localStorage.setItem("glide-morning-greeting-last-shown-v1", JSON.stringify(todayKey));
+
+let checkinRecorder = null;
+let checkinStream = null;
+let checkinChunks = [];
+let morningRecorder = null;
+let morningStream = null;
+let morningChunks = [];
+let energyRecorder = null;
+let energyStream = null;
+let energyChunks = [];
+let energyPendingBlob = null;
+let energySaving = false;
+
+const pickUpBeacon = state.beacons.find((item) => item.id === "pick-up");
+if (pickUpBeacon && !String(pickUpBeacon.practice || "").includes("Is this worthy of my life?")) {
+  const existingPractice = String(pickUpBeacon.practice || "Ask: Does this deserve my energy?").trim();
+  pickUpBeacon.practice = `${existingPractice} Optional deeper reflection: Is this worthy of my life?`;
+  try {
+    localStorage.setItem("glide-beacons-v1", JSON.stringify(state.beacons));
+  } catch {
+    // The updated reflection still remains available for this session.
+  }
+}
 
 const escapeHtml = (value = "") =>
   value
@@ -623,7 +954,228 @@ const save = () => {
   localStorage.setItem("glide-lighthouses-v1", JSON.stringify(state.lighthouses));
   localStorage.setItem("glide-growing-v1", JSON.stringify(state.growing));
   localStorage.setItem("glide-intentions-v1", JSON.stringify(state.intentions));
+  localStorage.setItem("glide-hearth-feedback-v1", JSON.stringify(state.hearthFeedback));
+  localStorage.setItem("glide-voice-checkin-settings-v1", JSON.stringify(state.voiceSettings));
+  localStorage.setItem("glide-voice-checkin-entries-v1", JSON.stringify(state.voiceEntries));
+  localStorage.setItem("glide-morning-reflections-v1", JSON.stringify(state.morningEntries));
+  localStorage.setItem("glide-energy-observations-v1", JSON.stringify(state.energyObservations));
 };
+
+function addVoiceEntry(type, content = "") {
+  state.voiceEntries.unshift({ id: `voice-entry-${Date.now()}`, type, content, createdAt: new Date().toISOString() });
+  state.voiceEntries = state.voiceEntries.slice(0, 250);
+  save();
+}
+
+function addMorningEntry(type, content = "", recordingId = "") {
+  state.morningEntries.unshift({
+    id: `morning-${Date.now()}`,
+    type,
+    content,
+    recordingId,
+    date: localDateKey(),
+    createdAt: new Date().toISOString(),
+  });
+  state.morningEntries = state.morningEntries.slice(0, 250);
+  save();
+}
+
+function addEnergyObservation(type, content = "", recordingId = "") {
+  state.energyObservations.unshift({
+    id: `energy-${Date.now()}-${crypto.randomUUID()}`,
+    type, content, recordingId,
+    createdAt: new Date().toISOString(),
+  });
+  save();
+}
+
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 2600);
+}
+
+function voiceSettingsMarkup() {
+  const settings = state.voiceSettings;
+  const support = "Notification" in window && "serviceWorker" in navigator && "PushManager" in window;
+  return `<section class="voice-reminders">
+    <div class="voice-reminder-heading"><div><small>Daily gentle check-in</small><h4>Voice before comfort</h4></div><span>${settings.enabled ? "Reminder on" : "Reminder off"}</span></div>
+    <p>One quiet evening invitation to notice whether something inside you wants expression. Delivery will usually be around 8–10 p.m. Toronto time.</p>
+    ${support ? `
+    <div class="voice-reminder-actions">
+      ${settings.enabled ? "" : '<button type="button" data-save-voice-reminders>Turn on daily reminder</button>'}
+      ${settings.enabled ? '<button type="button" data-disable-voice-reminders>Turn off</button>' : ""}
+    </div>
+    <p class="voice-reminder-status" data-voice-reminder-status>${escapeHtml(state.voiceCheckinStatus || "On iPhone, install Glide to your Home Screen before turning reminders on.")}</p>` : '<p class="voice-reminder-status">This browser does not support background notifications.</p>'}
+  </section>`;
+}
+
+function voiceCheckinOverlayMarkup() {
+  if (!state.voiceCheckinOpen) return "";
+  const mode = state.voiceCheckinMode;
+  const pinField = !getRecordingPin()
+    ? '<label class="checkin-pin">Recording PIN<input type="password" inputmode="numeric" data-checkin-pin placeholder="Your private PIN"></label>'
+    : "";
+  const actionArea = mode === "journal"
+    ? `<form class="checkin-entry" data-checkin-journal><label>Give it a few words<textarea rows="4" name="entry" autofocus placeholder="What wants to be expressed?"></textarea></label><button type="submit">Save this entry</button></form>`
+    : mode === "record"
+      ? `<div class="checkin-entry">${pinField}<p data-checkin-record-status>${escapeHtml(state.voiceCheckinStatus || "Your voice will be saved privately with a timestamp.")}</p><div class="checkin-record-actions"><button type="button" data-checkin-record>● Record</button><button type="button" data-checkin-stop disabled>Stop & save</button></div></div>`
+      : `<div class="checkin-choices">
+          <button type="button" data-checkin-mode="record"><span>🎙️</span>Record a voice note</button>
+          <button type="button" data-checkin-mode="journal"><span>✍️</span>Write a quick journal entry</button>
+          <button type="button" data-checkin-nothing><span>○</span>Nothing right now</button>
+        </div>`;
+  return `<div class="checkin-overlay" role="dialog" aria-modal="true" aria-label="Voice before comfort check-in">
+    <div class="checkin-backdrop"></div>
+    <article class="checkin-modal">
+      <button class="checkin-close" type="button" data-close-checkin aria-label="Close">×</button>
+      <small>A gentle pause</small>
+      <h2>What is asking to be spoken right now?</h2>
+      <div class="checkin-questions"><p>What am I feeling right now?</p><p>Is there anything left unsaid?</p><p>Am I seeking comfort when what I really need is expression?</p></div>
+      ${actionArea}
+      <p class="checkin-status" role="status">${escapeHtml(state.voiceCheckinStatus)}</p>
+      <div class="checkin-l-actions"><button type="button" data-checkin-skip>Not right now</button></div>
+      <blockquote>“You don’t have to solve everything right now. Let’s just take one step back to yourself.”</blockquote>
+    </article>
+  </div>`;
+}
+
+function morningGreetingMarkup() {
+  if (!state.morningOpen) return "";
+  const mode = state.morningMode;
+  const pinField = !getRecordingPin()
+    ? '<label class="morning-pin">Recording PIN<input type="password" inputmode="numeric" data-morning-pin placeholder="Your private PIN"></label>'
+    : "";
+  const history = state.morningEntries.slice(0, 40).map((entry) => {
+    const date = new Date(entry.createdAt);
+    const label = date.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
+    if (entry.type === "voice") {
+      return `<article class="morning-memory"><small>${escapeHtml(label)}</small><div><span>🎙 Voice reflection</span><button type="button" data-play-morning="${escapeHtml(entry.recordingId)}">Play</button></div></article>`;
+    }
+    return `<article class="morning-memory"><small>${escapeHtml(label)}</small><p>${escapeHtml(entry.content)}</p></article>`;
+  }).join("");
+  const responseArea = mode === "write"
+    ? `<form class="morning-response" data-morning-write><label>What wants more room today?<textarea name="response" rows="4" autofocus placeholder="A few words are enough."></textarea></label><button type="submit">Save this reflection</button><button type="button" class="morning-text-button" data-morning-back>Back</button></form>`
+    : mode === "speak"
+      ? `<div class="morning-response">${pinField}<p data-morning-record-status>${escapeHtml(state.morningStatus || "Your voice will be saved privately with today’s date.")}</p><div class="morning-record-actions"><button type="button" data-morning-record>● Record</button><button type="button" data-morning-stop disabled>Stop & save</button></div><button type="button" class="morning-text-button" data-morning-back>Back</button></div>`
+      : mode === "history"
+        ? `<section class="morning-history"><div class="morning-history-head"><h3>Earlier reflections</h3><button type="button" data-morning-back>Back</button></div>${pinField}${history || "<p>No morning reflections yet.</p>"}</section>`
+        : `<div class="morning-actions">
+            <button type="button" data-morning-mode="speak"><span>🎙</span><b>Speak it</b><small>Record a short voice note</small></button>
+            <button type="button" data-morning-mode="write"><span>✍️</span><b>Write it</b><small>Enter a short response</small></button>
+            <button type="button" data-morning-carry><span>🌱</span><b>Just carry it with me</b><small>Nothing needs to be recorded</small></button>
+          </div>`;
+  return `<div class="morning-overlay" role="dialog" aria-modal="true" aria-label="Morning greeting">
+    <div class="morning-backdrop"></div>
+    <article class="morning-modal">
+      <button class="morning-close" type="button" data-morning-carry aria-label="Carry this with me and close">×</button>
+      ${mode === "history" ? responseArea : `<div class="morning-copy">
+        <small>Morning, Charu</small>
+        <h2>Good morning, Charu.</h2>
+        <h3>There is more of you waiting to live.</h3>
+        <p>Remember what you have already nurtured.</p>
+        <p>You have nurtured two human beings into this world.</p>
+        <p>You have built a meaningful career.</p>
+        <p>You became a yoga teacher and an Ayurvedic coach.</p>
+        <p>You have learned to lead, create, teach, care and begin again.</p>
+        <p class="morning-proof"><strong>You have proof.</strong></p>
+        <p>You know how to nurture something until it becomes real.</p>
+        <p>Now you can bring that same capacity to the parts of yourself that are asking for more life.</p>
+        <p>You don’t need to invent a new you.</p>
+        <p class="morning-create"><strong>Create room for what is already alive.</strong></p>
+        <div class="morning-question"><small>Morning reflection</small><blockquote>What part of me wants a little more room to live today?</blockquote></div>
+      </div>${responseArea}`}
+      <p class="morning-status" role="status">${escapeHtml(state.morningStatus)}</p>
+      ${mode !== "history" && state.morningEntries.length ? '<button type="button" class="morning-past" data-morning-mode="history">Look back at earlier reflections</button>' : ""}
+    </article>
+  </div>`;
+}
+
+function urlBase64ToUint8Array(value) {
+  const padding = "=".repeat((4 - (value.length % 4)) % 4);
+  const binary = atob((value + padding).replaceAll("-", "+").replaceAll("_", "/"));
+  return Uint8Array.from([...binary].map((character) => character.charCodeAt(0)));
+}
+
+async function reminderApi(body) {
+  const response = await fetch("/api/checkins/subscription", {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-glide-pin": getRecordingPin() },
+    body: JSON.stringify(body),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || "The reminder could not be saved.");
+  return data;
+}
+
+async function saveVoiceReminders() {
+  if (!getRecordingPin()) throw new Error("Unlock the voice studio with your recording PIN first.");
+  const permission = await Notification.requestPermission();
+  if (permission !== "granted") throw new Error("Notifications are not allowed on this device.");
+  const registration = await navigator.serviceWorker.ready;
+  const configResponse = await fetch("/api/checkins/config");
+  const config = await configResponse.json();
+  if (!configResponse.ok) throw new Error(config.error || "Notification setup is unavailable.");
+  let subscription = await registration.pushManager.getSubscription();
+  if (!subscription) {
+    subscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(config.publicKey) });
+  }
+  await reminderApi({ action: "save", subscription: subscription.toJSON(), settings: state.voiceSettings });
+  state.voiceSettings.enabled = true;
+  state.voiceCheckinStatus = "Gentle reminders are on for this device.";
+  save();
+}
+
+async function disableVoiceReminders() {
+  const registration = await navigator.serviceWorker.ready;
+  const subscription = await registration.pushManager.getSubscription();
+  if (subscription) {
+    await reminderApi({ action: "delete", endpoint: subscription.endpoint });
+    await subscription.unsubscribe();
+  }
+  state.voiceSettings.enabled = false;
+  state.voiceCheckinStatus = "Reminders are off on this device.";
+  save();
+}
+
+function hearthScore(actionId) {
+  const feedback = state.hearthFeedback[actionId] || {};
+  const yes = Number(feedback.yes || 0);
+  const little = Number(feedback.little || 0);
+  const no = Number(feedback.no || 0);
+  const total = yes + little + no;
+  if (!total) return 0;
+  const average = (yes + little * 0.45 - no * 0.35) / total;
+  const confidence = Math.min(total / 4, 1);
+  return average * confidence;
+}
+
+function rankedHearthActions(actions) {
+  return [...actions].sort((a, b) => hearthScore(b[0]) - hearthScore(a[0]));
+}
+
+function pickHearthAction() {
+  const pool = ALL_HEARTH_ACTIONS.filter((action) => action.id !== state.hearthAction);
+  const action = pool[Math.floor(Math.random() * pool.length)] || ALL_HEARTH_ACTIONS[0];
+  state.hearthAction = action.id;
+  render();
+}
+
+function recordHearthFeedback(actionId, response) {
+  const current = state.hearthFeedback[actionId] || { yes: 0, little: 0, no: 0 };
+  current[response] = Number(current[response] || 0) + 1;
+  current.lastResponse = response;
+  current.lastUsed = Date.now();
+  state.hearthFeedback[actionId] = current;
+  save();
+  state.hearthAction = null;
+  render();
+  const toast = document.getElementById("toast");
+  toast.textContent = response === "yes" ? "Keep this close. It helped." : response === "little" ? "Noted. It helped a little." : "Noted. We’ll let other actions rise.";
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 2600);
+}
 
 function guidance(text) {
   const q = text.toLowerCase();
@@ -729,6 +1281,47 @@ const heading = (tone, kicker, title, copy, action = "") => `
     ${action}
   </header>`;
 
+function renderHearth() {
+  if (state.hearthAction) {
+    const action = ALL_HEARTH_ACTIONS.find((item) => item.id === state.hearthAction);
+    if (!action) state.hearthAction = null;
+    else return `<section class="hearth-focus page-content" aria-live="polite">
+      <button class="hearth-back" data-hearth-back>← See all actions</button>
+      <article class="hearth-focus-card">
+        <span class="hearth-focus-icon" aria-hidden="true">${action.icon}</span>
+        <small>${escapeHtml(action.groupTitle)}</small>
+        <h2>${escapeHtml(action.label)}</h2>
+        <blockquote>“You don’t have to solve everything right now. Let’s just take one step back to yourself.”</blockquote>
+        <div class="hearth-reflection">
+          <p>Did this help you return to your hearth?</p>
+          <div class="hearth-feedback">
+            <button data-hearth-rate="yes" data-hearth-id="${action.id}">✅ Yes</button>
+            <button data-hearth-rate="little" data-hearth-id="${action.id}">➖ A little</button>
+            <button data-hearth-rate="no" data-hearth-id="${action.id}">❌ Not really</button>
+          </div>
+        </div>
+        <button class="hearth-reroll" data-pick-hearth>Choose another for me</button>
+      </article>
+    </section>`;
+  }
+
+  return `<section class="hearth-page page-content">
+    <header class="hearth-heading">
+      <div><p class="kicker hearth-text">One step back to yourself</p><h2>🌿 Return to the Hearth</h2><p>Choose one small action. That’s enough.</p></div>
+      <button class="hearth-pick" data-pick-hearth><span aria-hidden="true">🎲</span> Pick One For Me</button>
+    </header>
+    <p class="hearth-note">No advice. No pressure. The actions that genuinely help will rise gently over time.</p>
+    <div class="hearth-groups">
+      ${HEARTH_GROUPS.map((group) => `<section class="hearth-group">
+        <header><span aria-hidden="true">${group.icon}</span><h3>${escapeHtml(group.title)}</h3></header>
+        <div class="hearth-action-grid">
+          ${rankedHearthActions(group.actions).map(([id, label]) => `<button class="hearth-action" data-hearth-action="${id}"><span>${escapeHtml(label)}</span><i aria-hidden="true">→</i></button>`).join("")}
+        </div>
+      </section>`).join("")}
+    </div>
+  </section>`;
+}
+
 function renderBeacons() {
   const active =
     state.beacons.find((item) => item.id === state.activeBeacon) || state.beacons[0];
@@ -786,6 +1379,34 @@ function renderLighthouses() {
     </section>`;
 }
 
+function energyObservationsMarkup() {
+  const observations = state.energyObservations.map((entry) => {
+    const date = new Date(entry.createdAt).toLocaleString([], {
+      dateStyle: "medium", timeStyle: "short",
+    });
+    return `<li><time datetime="${escapeHtml(entry.createdAt)}">${escapeHtml(date)}</time>
+      ${entry.type === "voice"
+        ? `<button type="button" data-play-energy="${escapeHtml(entry.recordingId)}">▶ Listen to voice note</button>`
+        : `<p>${escapeHtml(entry.content)}</p>`}</li>`;
+  }).join("");
+  return `<section class="energy-observations" aria-label="Parking the Fire observations">
+    <small>Parking the Fire · A trace, not a task</small>
+    <form data-energy-form>
+      <label for="energy-sentence">One sentence, if something comes</label>
+      <textarea id="energy-sentence" name="sentence" rows="2" maxlength="700" placeholder="My energy grabbed… It might want to move toward…"></textarea>
+      <button type="submit">Save this observation</button>
+    </form>
+    <div class="energy-voice-actions">
+      ${!getRecordingPin() ? '<label>Recording PIN<input type="password" inputmode="numeric" data-energy-pin placeholder="Your private PIN"></label>' : ""}
+      <button type="button" data-energy-record ${energyRecorder?.state === "recording" || energySaving ? "disabled" : ""}>🎙 ${energyPendingBlob ? "Try saving again" : "Short voice note"}</button>
+      <button type="button" data-energy-stop ${energyRecorder?.state === "recording" ? "" : "disabled"}>Stop & save</button>
+      ${energyPendingBlob ? '<button type="button" data-energy-discard>Discard unsaved note</button>' : ""}
+    </div>
+    <p class="energy-status" role="status">${escapeHtml(state.energyStatus)}</p>
+    ${observations ? `<details><summary>Earlier observations</summary><ol>${observations}</ol></details>` : ""}
+  </section>`;
+}
+
 function renderDetailOverlay() {
   if (!state.detailOpen) return "";
 
@@ -833,8 +1454,10 @@ function renderDetailOverlay() {
       <small>${config.label}</small>
       <h3>${escapeHtml(item.title)}</h3><hr>
       ${audioStudioMarkup(item.id)}
-      <div class="transcript-block"><small>Transcript</small><p>${escapeHtml(body)}</p></div>
+      ${state.detailOpen === "beacon" && item.id === "voice-before-comfort" ? voiceSettingsMarkup() : ""}
+      <div class="transcript-block"><small>Transcript</small><p class="${["energy-rightful-direction", "how-i-walk-purpose"].includes(item.id) ? "energy-context" : ""}">${escapeHtml(body)}</p></div>
       <div class="practice"><small>${practiceLabel}</small><strong>${escapeHtml(practiceText)}</strong>${returnButton}</div>
+      ${state.detailOpen === "beacon" && item.id === "energy-rightful-direction" ? energyObservationsMarkup() : ""}
       <div class="detail-actions">
         <button class="detail-done" data-close-detail>Done</button>
         <button class="detail-next" data-detail-next>Next item →</button>
@@ -901,7 +1524,9 @@ function renderAnchors() {
 function render() {
   renderNav();
   const page =
-    state.tab === "beacons"
+    state.tab === "hearth"
+      ? renderHearth()
+      : state.tab === "beacons"
       ? renderBeacons()
       : state.tab === "drift"
         ? renderDrift()
@@ -912,14 +1537,15 @@ function render() {
             : state.tab === "anchors"
               ? renderAnchors()
               : renderGrowing();
-  document.getElementById("content").innerHTML = page + renderDetailOverlay();
-  document.body.classList.toggle("detail-open", Boolean(state.detailOpen));
+  document.getElementById("content").innerHTML = page + renderDetailOverlay() + voiceCheckinOverlayMarkup() + morningGreetingMarkup();
+  document.body.classList.toggle("detail-open", Boolean(state.detailOpen || state.voiceCheckinOpen || state.morningOpen));
   bindAudioStudio();
 }
 
 function setTab(tab) {
   state.tab = tab;
   if (!['beacons', 'drift', 'lighthouses'].includes(tab)) state.detailOpen = null;
+  if (tab !== "hearth") state.hearthAction = null;
   render();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -945,11 +1571,337 @@ function openDialog(mode) {
   dialog.showModal();
 }
 
+function closeMorningGreeting() {
+  if (morningRecorder?.state === "recording") {
+    const status = document.querySelector("[data-morning-record-status]");
+    if (status) status.textContent = "Stop and save your recording before continuing.";
+    return false;
+  }
+  morningStream?.getTracks().forEach((track) => track.stop());
+  morningStream = null;
+  state.morningOpen = false;
+  state.morningMode = null;
+  state.morningStatus = "";
+  render();
+  return true;
+}
+
+function setEnergyStatus(message) {
+  state.energyStatus = message;
+  const status = document.querySelector(".energy-status");
+  if (status) status.textContent = message;
+}
+
+async function unlockEnergyVoiceIfNeeded() {
+  if (getRecordingPin()) return;
+  const pin = document.querySelector("[data-energy-pin]")?.value;
+  if (!pin) throw new Error("Enter your recording PIN first.");
+  await unlockRecordingPin(pin);
+}
+
+async function saveEnergyVoice() {
+  if (!energyPendingBlob || energySaving) return;
+  energySaving = true;
+  setEnergyStatus("Saving your observation privately…");
+  try {
+    // A fresh ID keeps every dated observation; the Beacon's guided recording is untouched.
+    const recordingId = `energy-${Date.now()}-${crypto.randomUUID()}`;
+    await saveVoiceNoteBlob(energyPendingBlob, recordingId);
+    addEnergyObservation("voice", "", recordingId);
+    energyPendingBlob = null;
+    setEnergyStatus("Voice observation saved. You can leave the activity now.");
+  } catch (error) {
+    setEnergyStatus(`${error.message} Your note is still here; try saving again or discard it.`);
+  } finally {
+    energySaving = false;
+    render();
+  }
+}
+
+async function beginEnergyRecording() {
+  if (energyPendingBlob) {
+    await unlockEnergyVoiceIfNeeded();
+    await saveEnergyVoice();
+    return;
+  }
+  if (!await finishAudioStudio()) throw new Error("Finish saving the Beacon recording first.");
+  await unlockEnergyVoiceIfNeeded();
+  if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
+    throw new Error("Voice recording is not supported in this browser.");
+  }
+  energyStream = await navigator.mediaDevices.getUserMedia({ audio: {
+    echoCancellation: true, noiseSuppression: true, autoGainControl: true,
+  } });
+  const mimeType = ["audio/mp4", "audio/webm;codecs=opus", "audio/webm", "audio/ogg;codecs=opus"]
+    .find((type) => MediaRecorder.isTypeSupported(type)) || "";
+  energyChunks = [];
+  energyRecorder = new MediaRecorder(energyStream, mimeType ? { mimeType } : undefined);
+  energyRecorder.ondataavailable = (event) => { if (event.data.size) energyChunks.push(event.data); };
+  energyRecorder.onstop = async () => {
+    energyStream?.getTracks().forEach((track) => track.stop());
+    energyStream = null;
+    energyPendingBlob = new Blob(energyChunks, { type: energyRecorder.mimeType || mimeType || "audio/webm" });
+    energyRecorder = null;
+    if (!energyPendingBlob.size) {
+      energyPendingBlob = null;
+      setEnergyStatus("No sound was captured. You can try again.");
+      render();
+      return;
+    }
+    await saveEnergyVoice();
+  };
+  energyRecorder.start(500);
+  const record = document.querySelector("[data-energy-record]");
+  const stop = document.querySelector("[data-energy-stop]");
+  if (record) { record.disabled = true; record.textContent = "Recording…"; }
+  if (stop) stop.disabled = false;
+  setEnergyStatus("A short voice note is enough. Stop when you’re ready.");
+}
+
+function canLeaveEnergyObservation() {
+  if (state.detailOpen !== "beacon" || state.activeBeacon !== "energy-rightful-direction") return true;
+  if (!energyRecorder && !energySaving && !energyPendingBlob) return true;
+  setEnergyStatus(energyPendingBlob
+    ? "Save or discard this unsaved note before leaving."
+    : "Stop and let your voice note finish saving before leaving.");
+  return false;
+}
+
+async function beginMorningRecording() {
+  const pinInput = document.querySelector("[data-morning-pin]");
+  if (!getRecordingPin()) {
+    if (!pinInput?.value) throw new Error("Enter your recording PIN first.");
+    await unlockRecordingPin(pinInput.value);
+  }
+  if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) throw new Error("Voice recording is not supported in this browser.");
+  morningStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+  const mimeType = ["audio/mp4", "audio/webm;codecs=opus", "audio/webm", "audio/ogg;codecs=opus"].find((type) => MediaRecorder.isTypeSupported(type)) || "";
+  morningChunks = [];
+  morningRecorder = new MediaRecorder(morningStream, mimeType ? { mimeType } : undefined);
+  morningRecorder.ondataavailable = (event) => { if (event.data.size) morningChunks.push(event.data); };
+  morningRecorder.onstop = async () => {
+    const status = document.querySelector("[data-morning-record-status]");
+    try {
+      if (status) status.textContent = "Saving your morning reflection privately…";
+      const blob = new Blob(morningChunks, { type: morningRecorder.mimeType || mimeType || "audio/webm" });
+      const itemId = `morning-${localDateKey().replaceAll("-", "")}-${Date.now()}`;
+      await saveVoiceNoteBlob(blob, itemId);
+      addMorningEntry("voice", "", itemId);
+      morningStream?.getTracks().forEach((track) => track.stop());
+      morningStream = null;
+      state.morningOpen = false;
+      state.morningMode = null;
+      state.morningStatus = "";
+      render();
+      showToast("Morning voice reflection saved.");
+    } catch (error) {
+      state.morningStatus = `${error.message} Your reflection is still open—please try again.`;
+      render();
+    }
+  };
+  morningRecorder.start(500);
+  const recordButton = document.querySelector("[data-morning-record]");
+  const stopButton = document.querySelector("[data-morning-stop]");
+  if (recordButton) { recordButton.disabled = true; recordButton.textContent = "Recording…"; }
+  if (stopButton) stopButton.disabled = false;
+  const status = document.querySelector("[data-morning-record-status]");
+  if (status) status.textContent = "Listening. A few honest words are enough.";
+}
+
+function closeVoiceCheckin() {
+  if (checkinRecorder?.state === "recording") checkinRecorder.stop();
+  checkinStream?.getTracks().forEach((track) => track.stop());
+  checkinStream = null;
+  state.voiceCheckinOpen = false;
+  state.voiceCheckinMode = null;
+  state.voiceCheckinStatus = "";
+  if (new URLSearchParams(window.location.search).has("checkin")) history.replaceState({}, "", window.location.pathname);
+  render();
+}
+
+async function beginCheckinRecording() {
+  const pinInput = document.querySelector("[data-checkin-pin]");
+  if (!getRecordingPin()) {
+    if (!pinInput?.value) throw new Error("Enter your recording PIN first.");
+    await unlockRecordingPin(pinInput.value);
+  }
+  if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) throw new Error("Voice recording is not supported in this browser.");
+  checkinStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+  const mimeType = ["audio/mp4", "audio/webm;codecs=opus", "audio/webm", "audio/ogg;codecs=opus"].find((type) => MediaRecorder.isTypeSupported(type)) || "";
+  checkinChunks = [];
+  checkinRecorder = new MediaRecorder(checkinStream, mimeType ? { mimeType } : undefined);
+  checkinRecorder.ondataavailable = (event) => { if (event.data.size) checkinChunks.push(event.data); };
+  checkinRecorder.onstop = async () => {
+    const status = document.querySelector("[data-checkin-record-status]");
+    try {
+      if (status) status.textContent = "Saving your voice privately…";
+      const blob = new Blob(checkinChunks, { type: checkinRecorder.mimeType || mimeType || "audio/webm" });
+      const itemId = `checkin-${Date.now()}`;
+      const record = await saveVoiceNoteBlob(blob, itemId);
+      addVoiceEntry("voice", itemId);
+      state.voiceCheckinStatus = `Voice note saved at ${new Date(record.updatedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}.`;
+      checkinStream?.getTracks().forEach((track) => track.stop());
+      checkinStream = null;
+      render();
+    } catch (error) {
+      state.voiceCheckinStatus = `${error.message} Your note is still open—please try again.`;
+      render();
+    }
+  };
+  checkinRecorder.start(500);
+  const recordButton = document.querySelector("[data-checkin-record]");
+  const stopButton = document.querySelector("[data-checkin-stop]");
+  if (recordButton) { recordButton.disabled = true; recordButton.textContent = "Recording…"; }
+  if (stopButton) stopButton.disabled = false;
+  const status = document.querySelector("[data-checkin-record-status]");
+  if (status) status.textContent = "Listening. Say only what wants a voice.";
+}
+
 document.addEventListener("click", async (event) => {
   const button = event.target.closest("button");
   if (!button) return;
+  if (button.hasAttribute("data-energy-record")) {
+    try { await beginEnergyRecording(); }
+    catch (error) {
+      energyStream?.getTracks().forEach((track) => track.stop());
+      energyStream = null;
+      setEnergyStatus(error.message);
+    }
+    return;
+  }
+  if (button.hasAttribute("data-energy-stop")) {
+    if (energyRecorder?.state === "recording") {
+      button.disabled = true;
+      button.textContent = "Saving…";
+      energyRecorder.stop();
+    }
+    return;
+  }
+  if (button.hasAttribute("data-energy-discard")) {
+    energyPendingBlob = null;
+    setEnergyStatus("Unsaved note discarded. The fire can rest.");
+    render();
+    return;
+  }
+  if (button.dataset.playEnergy) {
+    try {
+      await unlockEnergyVoiceIfNeeded();
+      button.disabled = true;
+      button.textContent = "Playing…";
+      const clip = await playSavedVoiceNote(button.dataset.playEnergy);
+      clip.addEventListener("ended", () => { button.disabled = false; button.textContent = "▶ Listen to voice note"; }, { once: true });
+    } catch (error) {
+      button.disabled = false;
+      button.textContent = "▶ Listen to voice note";
+      setEnergyStatus(error.message);
+    }
+    return;
+  }
+  if (button.dataset.morningMode) {
+    state.morningMode = button.dataset.morningMode;
+    state.morningStatus = "";
+    render();
+    return;
+  }
+  if (button.hasAttribute("data-morning-back")) {
+    state.morningMode = null;
+    state.morningStatus = "";
+    render();
+    return;
+  }
+  if (button.hasAttribute("data-morning-carry")) {
+    closeMorningGreeting();
+    return;
+  }
+  if (button.hasAttribute("data-morning-record")) {
+    try { await beginMorningRecording(); } catch (error) { state.morningStatus = error.message; render(); }
+    return;
+  }
+  if (button.hasAttribute("data-morning-stop")) {
+    if (morningRecorder?.state === "recording") {
+      button.disabled = true;
+      button.textContent = "Saving…";
+      morningRecorder.stop();
+    }
+    return;
+  }
+  if (button.dataset.playMorning) {
+    try {
+      if (!getRecordingPin()) {
+        const pin = document.querySelector("[data-morning-pin]")?.value;
+        if (!pin) throw new Error("Enter your recording PIN to listen.");
+        await unlockRecordingPin(pin);
+      }
+      button.disabled = true;
+      button.textContent = "Playing…";
+      const clip = await playSavedVoiceNote(button.dataset.playMorning);
+      clip.addEventListener("ended", () => { button.disabled = false; button.textContent = "Play"; }, { once: true });
+    } catch (error) {
+      state.morningStatus = error.message;
+      render();
+    }
+    return;
+  }
+  if (button.dataset.checkinMode) {
+    state.voiceCheckinMode = button.dataset.checkinMode;
+    state.voiceCheckinStatus = "";
+    render();
+    return;
+  }
+  if (button.hasAttribute("data-close-checkin")) { closeVoiceCheckin(); return; }
+  if (button.hasAttribute("data-checkin-nothing")) {
+    addVoiceEntry("nothing");
+    closeVoiceCheckin();
+    return;
+  }
+  if (button.hasAttribute("data-checkin-skip")) {
+    addVoiceEntry("skipped");
+    closeVoiceCheckin();
+    return;
+  }
+  if (button.hasAttribute("data-checkin-record")) {
+    try { await beginCheckinRecording(); } catch (error) { state.voiceCheckinStatus = error.message; render(); }
+    return;
+  }
+  if (button.hasAttribute("data-checkin-stop")) {
+    if (checkinRecorder?.state === "recording") {
+      button.disabled = true;
+      button.textContent = "Saving…";
+      checkinRecorder.stop();
+    }
+    return;
+  }
+  if (button.hasAttribute("data-save-voice-reminders")) {
+    state.voiceSettings = { ...state.voiceSettings, rhythm: "daily", customTimes: [], timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Toronto" };
+    try {
+      button.disabled = true;
+      button.textContent = "Saving…";
+      await saveVoiceReminders();
+    } catch (error) {
+      state.voiceCheckinStatus = error.message;
+    }
+    render();
+    return;
+  }
+  if (button.hasAttribute("data-disable-voice-reminders")) {
+    try { await disableVoiceReminders(); } catch (error) { state.voiceCheckinStatus = error.message; }
+    render();
+    return;
+  }
   if (button.dataset.tab) setTab(button.dataset.tab);
   if (button.dataset.status) setTab(button.dataset.status);
+  if (button.hasAttribute("data-pick-hearth")) pickHearthAction();
+  if (button.dataset.hearthAction) {
+    state.hearthAction = button.dataset.hearthAction;
+    render();
+  }
+  if (button.hasAttribute("data-hearth-back")) {
+    state.hearthAction = null;
+    render();
+  }
+  if (button.dataset.hearthRate && button.dataset.hearthId) {
+    recordHearthFeedback(button.dataset.hearthId, button.dataset.hearthRate);
+  }
   if (button.dataset.beacon) {
     state.activeBeacon = button.dataset.beacon;
     state.detailOpen = "beacon";
@@ -966,6 +1918,7 @@ document.addEventListener("click", async (event) => {
     render();
   }
   if (button.hasAttribute("data-close-detail")) {
+    if (!canLeaveEnergyObservation()) return;
     const originalLabel = button.textContent;
     button.disabled = true;
     if (button.classList.contains("detail-done")) button.textContent = "Saving…";
@@ -979,6 +1932,7 @@ document.addEventListener("click", async (event) => {
     render();
   }
   if (button.hasAttribute("data-detail-next")) {
+    if (!canLeaveEnergyObservation()) return;
     const originalLabel = button.textContent;
     button.disabled = true;
     button.textContent = "Saving…";
@@ -1034,6 +1988,34 @@ document.addEventListener("input", (event) => {
 });
 
 document.addEventListener("submit", (event) => {
+  if (event.target.hasAttribute("data-energy-form")) {
+    event.preventDefault();
+    const content = String(new FormData(event.target).get("sentence") || "").trim();
+    if (!content) return;
+    addEnergyObservation("written", content);
+    setEnergyStatus("Observation saved with today’s date and time. No need to investigate it now.");
+    render();
+    return;
+  }
+  if (event.target.hasAttribute("data-morning-write")) {
+    event.preventDefault();
+    const response = String(new FormData(event.target).get("response") || "").trim();
+    if (!response) return;
+    addMorningEntry("written", response);
+    state.morningOpen = false;
+    state.morningMode = null;
+    render();
+    showToast("Morning reflection saved.");
+    return;
+  }
+  if (event.target.matches("[data-checkin-journal]")) {
+    event.preventDefault();
+    const entry = new FormData(event.target).get("entry")?.trim();
+    if (!entry) return;
+    addVoiceEntry("journal", entry);
+    closeVoiceCheckin();
+    return;
+  }
   if (event.target.id === "guide-form") {
     event.preventDefault();
     state.guide = guidance(document.getElementById("guide-input").value);
@@ -1077,11 +2059,30 @@ document.getElementById("add-form").addEventListener("submit", (event) => {
 
 document.querySelector(".brand").addEventListener("click", () => setTab("beacons"));
 document.addEventListener("keydown", async (event) => {
+  if (event.key === "Escape" && state.morningOpen) {
+    closeMorningGreeting();
+    return;
+  }
+  if (event.key === "Escape" && state.voiceCheckinOpen) {
+    closeVoiceCheckin();
+    return;
+  }
   if (event.key === "Escape" && state.detailOpen) {
+    if (!canLeaveEnergyObservation()) return;
     const readyToClose = await finishAudioStudio();
     if (!readyToClose) return;
     state.detailOpen = null;
     render();
   }
 });
+navigator.serviceWorker?.addEventListener("message", (event) => {
+  if (event.data?.type !== "OPEN_VOICE_CHECKIN") return;
+  state.morningOpen = false;
+  state.voiceCheckinOpen = true;
+  state.voiceCheckinMode = null;
+  state.voiceCheckinStatus = "";
+  render();
+});
 render();
+
+if (state.voiceCheckinOpen) history.replaceState({}, "", window.location.pathname);

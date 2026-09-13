@@ -21,6 +21,20 @@ let introPlayed = false;
 let playbackGeneration = 0;
 
 const getPin = () => sessionStorage.getItem(PIN_KEY) || "";
+
+export const getRecordingPin = getPin;
+
+export async function unlockRecordingPin(pin) {
+  sessionStorage.setItem(PIN_KEY, String(pin || ""));
+  try {
+    await api("/api/audio", { method: "POST", body: JSON.stringify({ action: "verify" }) });
+    await loadMetadata(true);
+    return true;
+  } catch (error) {
+    sessionStorage.removeItem(PIN_KEY);
+    throw error;
+  }
+}
 const studio = () => document.querySelector("[data-audio-studio]");
 const byAction = (name) => studio()?.querySelector(`[data-audio-action="${name}"]`);
 
@@ -189,6 +203,23 @@ async function uploadRecording(recordedBlob, itemId) {
     setStatus("Saved privately to your voice library.", "saved");
     updateStudio();
   }
+}
+
+export async function saveVoiceNoteBlob(recordedBlob, itemId) {
+  await uploadRecording(recordedBlob, itemId);
+  return metadata[itemId];
+}
+
+export async function playSavedVoiceNote(itemId) {
+  if (!getPin()) throw new Error("Enter your recording PIN to listen.");
+  const response = await api(`/api/audio?itemId=${encodeURIComponent(itemId)}`);
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  const clip = new Audio(url);
+  clip.onended = () => URL.revokeObjectURL(url);
+  clip.onerror = () => URL.revokeObjectURL(url);
+  await clip.play();
+  return clip;
 }
 
 async function deleteRecording() {
