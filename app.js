@@ -9,6 +9,8 @@ import {
   unlockRecordingPin,
 } from "./audio.js";
 
+const FOCUS_TRUST_CLUSTER = "focus-trust-adaptation-parenting-sovereignty";
+
 const DEFAULT_BEACONS = [
   {
     id: "home-joyful-space",
@@ -17,6 +19,23 @@ const DEFAULT_BEACONS = [
     context:
       "Joy becomes available when I stop organizing every moment around vigilance, performance, and survival. Fear may visit, but it is not my home.",
     practice: "Ask: What can I gently put down today so joy has more room?",
+  },
+  {
+    id: "do-not-ration-the-good",
+    category: "Joy",
+    title: "I do not ration the good.",
+    context:
+      "There was a time when connection, ease, belonging, celebration, and being cherished felt scarce. My nervous system learned not to expect too much. That scarcity is not the law of my life now. When goodness appears, I do not have to brace for its disappearance or withdraw from it before it can be taken away.",
+    practice:
+      "When the lurch comes: This is abundance, not danger. Let the friendship deepen. Take the invitation. Make another plan. Laugh longer. Reach out again. Receive. Give. Keep going.",
+  },
+  {
+    id: "life-force-worth-celebrating",
+    category: "Living",
+    title: "I am a life force worth celebrating.",
+    context:
+      "There was a time when I was not made to feel cherished simply for being here. I learned to ask whether I was useful or whether I had proved that I added value. But my existence itself belongs in the room. My presence can bring humor, attention, ideas, affection, curiosity, warmth, intensity, friendship, music, leadership, and tenderness—but even those are not the admission price. I do not have to earn cherishedness by being useful.",
+    practice: "Remember: My existence itself belongs in the room. I am worthy of being cherished before I do a thing.",
   },
   {
     id: "voice-before-comfort",
@@ -278,6 +297,26 @@ Do not immediately redirect the energy into researching my purpose or another pr
     practice: "Ask: Does this deserve my energy? Optional deeper reflection: Is this worthy of my life?",
   },
   {
+    id: "energy-behind-what-i-want",
+    category: "Attention",
+    cluster: FOCUS_TRUST_CLUSTER,
+    related: ["pick-up", "building-escape-routes", "trust-myself-to-adapt"],
+    title: "I put my energy behind what I want to happen.",
+    context:
+      "I became extraordinarily good at planning for failure; it protected me. But I don’t need to live there now.",
+    practice: "Ask: Am I solving a real problem or pre-living a failure? Then ask: What deserves my energy now?",
+  },
+  {
+    id: "children-carry-own-lives",
+    category: "Parenting",
+    cluster: FOCUS_TRUST_CLUSTER,
+    related: ["pick-up", "carrying-childs-burden", "communicate-belief"],
+    title: "I let my children carry their own lives.",
+    context:
+      "Their forgetting is not my failure. I can support without becoming their reminder system.",
+    practice: "Instead of predicting failure, ask: What’s your plan? If they forget, allow room for their next step.",
+  },
+  {
     id: "observer",
     category: "Observer",
     title: "Cultivate the posture of the observer.",
@@ -424,6 +463,35 @@ Do not immediately redirect the energy into researching my purpose or another pr
 ];
 
 const DEFAULT_SIGNALS = [
+  {
+    id: "building-escape-routes",
+    cluster: FOCUS_TRUST_CLUSTER,
+    related: ["pick-up", "energy-behind-what-i-want", "trust-myself-to-adapt"],
+    title: "I’m building escape routes instead of walking the road.",
+    meaning:
+      "I may be spending present energy rehearsing exits, contingencies, and future failure instead of inhabiting the path I have chosen. Planning once may be useful; repeatedly pre-living the failure is not the same as responding to a real problem.",
+    beacon: "I put my energy behind what I want to happen.",
+    practice: "I can adapt later. I don’t have to live later now.",
+  },
+  {
+    id: "carrying-childs-burden",
+    cluster: FOCUS_TRUST_CLUSTER,
+    related: ["pick-up", "children-carry-own-lives", "communicate-belief"],
+    title: "I’m carrying something that belongs to my child.",
+    meaning:
+      "I may have turned my child’s remembering, planning, choice, or consequence into evidence of how well I am parenting. Support is available without making their developing responsibility live inside my nervous system.",
+    beacon: "I let my children carry their own lives.",
+    practice: "Is this mine to carry, or theirs to learn from?",
+  },
+  {
+    id: "bracing-amid-goodness",
+    title: "Goodness is making me brace.",
+    meaning:
+      "Life is going well and suddenly I feel dread. I start scanning for what might go wrong, worry I will ruin something beautiful, or pull back from joy because enjoying it fully feels unsafe. An old scarcity model has mistaken abundance for something precarious. The feeling is a signal, not proof that this goodness is about to end. I can feel my feet, take an unhurried breath, and notice what is actually here without needing to make the lurch disappear. I am safe in abundance. I am allowed to keep going toward what is good.",
+    beacon: "I do not ration the good.",
+    practice:
+      "Things were hard to get back then. But look at this life. There is abundance here, and this abundance is mine to participate in. I can create and take and give and experience joy as much as I want. There will be more. I do not have to stop. I can move toward life boldly. I am cherished. I love you.",
+  },
   {
     id: "unwanted-momentum",
     title: "I’m feeding momentum I don’t actually want.",
@@ -696,6 +764,24 @@ I am already precious. Now I get to live.`,
     practice: "Before entering a room, ask: What climate do I want to contribute here? Then become the first example of it.",
   },
   {
+    id: "trust-myself-to-adapt",
+    cluster: FOCUS_TRUST_CLUSTER,
+    related: ["pick-up", "energy-behind-what-i-want", "building-escape-routes"],
+    title: "I trust myself to adapt.",
+    context:
+      "I don’t need certainty before I commit my energy. I can respond when response is actually required.",
+    practice: "I can adapt later.",
+  },
+  {
+    id: "communicate-belief",
+    cluster: FOCUS_TRUST_CLUSTER,
+    related: ["pick-up", "children-carry-own-lives", "carrying-childs-burden"],
+    title: "I communicate belief, not prediction.",
+    context:
+      "I create enough space for capability to grow. My children can experience my support without receiving my fear as a forecast of what will happen. A curious question can communicate trust while leaving their thinking and next step in their own hands.",
+    practice: "Ask: What’s your plan? Then listen for their capability before offering my solution.",
+  },
+  {
     id: "response-window",
     title: "I lead from the response window.",
     context: "Other people’s reactions often tell me more about their nervous system than about my worth. I have a precious response window where I can choose curiosity over mirroring.",
@@ -906,6 +992,55 @@ const state = {
   energyObservations: load("glide-energy-observations-v1", []),
   energyStatus: "",
 };
+
+// Place this data cluster beside its existing anchor once, while retaining every saved item.
+const focusClusterBeaconIds = ["energy-behind-what-i-want", "children-carry-own-lives"];
+const storedBeaconsForCluster = load("glide-beacons-v1", []);
+if (!Array.isArray(storedBeaconsForCluster)
+  || !focusClusterBeaconIds.every((id) => storedBeaconsForCluster.some((item) => item.id === id))) {
+  const clusteredBeacons = focusClusterBeaconIds
+    .map((id) => state.beacons.find((item) => item.id === id))
+    .filter(Boolean);
+  const otherBeacons = state.beacons.filter((item) => !focusClusterBeaconIds.includes(item.id));
+  const anchorIndex = otherBeacons.findIndex((item) => item.id === "pick-up");
+  otherBeacons.splice(anchorIndex >= 0 ? anchorIndex + 1 : otherBeacons.length, 0, ...clusteredBeacons);
+  state.beacons = otherBeacons;
+  try {
+    localStorage.setItem("glide-beacons-v1", JSON.stringify(state.beacons));
+  } catch {
+    // The clustered order remains available for this session.
+  }
+}
+
+// Upgrade only the previous default Drift wording; keep any personal edits to the saved signal.
+const bracingSignal = state.signals.find((item) => item.id === "bracing-amid-goodness");
+const updatedBracingSignal = DEFAULT_SIGNALS.find((item) => item.id === "bracing-amid-goodness");
+if (bracingSignal) {
+  let changed = false;
+  if (bracingSignal.title === "I’m bracing when there is goodness happening.") {
+    bracingSignal.title = updatedBracingSignal.title;
+    changed = true;
+  }
+  if (bracingSignal.meaning === "When my life is humming along, a familiar lurch of dread can make me expect the goodness to be taken away. I may have learned to stand guard when I was not simply cherished; this feeling is an old protection, not by itself a prediction. To return: pause, feel my feet and take one unhurried breath. Name it kindly: ‘I am bracing.’ Look around and notice one good thing that is actually here. Let it register for a breath without demanding that the dread disappear. If something real needs care, I can tend to it; I do not have to guard against every imagined loss. The life I have built is mine to live.") {
+    bracingSignal.meaning = updatedBracingSignal.meaning;
+    changed = true;
+  }
+  if (bracingSignal.beacon === "Return to joyful spaciousness.") {
+    bracingSignal.beacon = updatedBracingSignal.beacon;
+    changed = true;
+  }
+  if (!bracingSignal.practice) {
+    bracingSignal.practice = updatedBracingSignal.practice;
+    changed = true;
+  }
+  if (changed) {
+    try {
+      localStorage.setItem("glide-signals-v1", JSON.stringify(state.signals));
+    } catch {
+      // The new wording remains available for this session.
+    }
+  }
+}
 
 // Put this new Lighthouse first once for existing browsers, without changing or replacing saved items.
 const storedLighthouses = load("glide-lighthouses-v1", []);
@@ -1440,7 +1575,7 @@ function renderDetailOverlay() {
   const body = isSignal ? item.meaning : item.context;
   const practiceLabel = "Reflection prompt";
   const practiceText = isSignal
-    ? `What is this signal asking me to stop feeding—and what would an early return to “${item.beacon}” look like?`
+    ? item.practice || `What is this signal asking me to stop feeding—and what would an early return to “${item.beacon}” look like?`
     : item.practice;
   const returnButton = isSignal
     ? `<button data-return="${escapeHtml(item.beacon)}">Return to this beacon</button>`
