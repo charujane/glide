@@ -38,3 +38,11 @@ On first use in a browser session, Glide asks for this PIN before recording or p
 - Bowl and ambience are synthesized during playback and never baked into the voice file.
 - Ambient volume defaults to 15% and is adjustable independently.
 - The data model is keyed by philosophy item ID so a future Sessions feature can queue multiple items without changing stored recordings.
+
+## Walk With Me
+
+Open **Guide Me → Walk With Me → Play** to hear the philosophy-card recordings stored on this device in a fresh random order. The temporary queue does not repeat a card automatically, does not reveal what comes next, and is discarded when the walk ends. No merged audio file is created.
+
+New card recordings are saved both to the existing private cloud library and to this device's IndexedDB storage. After this update, unlock the voice studio once while online; Glide will quietly bring existing cloud recordings onto that device. Walk With Me then uses only those local copies, so playback continues without internet access or API calls. Each phone or browser keeps its own offline copies, and clearing site data removes them.
+
+Glide uses the Media Session API for lock-screen title, play/pause, previous, and next controls. Availability ultimately depends on the mobile browser and operating system. Install Glide as a Home Screen app and open it online once after each deployment so the updated app shell is available in airplane mode.

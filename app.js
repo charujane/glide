@@ -8,6 +8,7 @@ import {
   stopAudioSession,
   unlockRecordingPin,
 } from "./audio.js";
+import { bindWalkWithMe, pauseWalkWithMe, walkWithMeMarkup } from "./walk.js";
 
 const FOCUS_TRUST_CLUSTER = "focus-trust-adaptation-parenting-sovereignty";
 
@@ -1628,6 +1629,7 @@ function renderGuide() {
     <div class="guide-copy">
       <p class="kicker blue-text">Find the next step</p><h2>Tell me what’s happening.</h2>
       <p class="guide-intro">Bring the unedited version. Glide will reflect your own living philosophy back to you—one useful beacon at a time.</p>
+      ${walkWithMeMarkup()}
       <form id="guide-form">
         <label for="guide-input">What are you feeling or carrying?</label>
         <textarea id="guide-input" rows="7" placeholder="I keep replaying a conversation from yesterday…" required></textarea>
@@ -1675,6 +1677,9 @@ function render() {
   document.getElementById("content").innerHTML = page + renderDetailOverlay() + voiceCheckinOverlayMarkup() + morningGreetingMarkup();
   document.body.classList.toggle("detail-open", Boolean(state.detailOpen || state.voiceCheckinOpen || state.morningOpen));
   bindAudioStudio();
+  if (state.tab === "guide") {
+    bindWalkWithMe([...state.beacons, ...state.signals, ...state.lighthouses]);
+  }
 }
 
 function setTab(tab) {
@@ -2038,16 +2043,19 @@ document.addEventListener("click", async (event) => {
     recordHearthFeedback(button.dataset.hearthId, button.dataset.hearthRate);
   }
   if (button.dataset.beacon) {
+    pauseWalkWithMe();
     state.activeBeacon = button.dataset.beacon;
     state.detailOpen = "beacon";
     render();
   }
   if (button.dataset.signal) {
+    pauseWalkWithMe();
     state.activeSignal = button.dataset.signal;
     state.detailOpen = "signal";
     render();
   }
   if (button.dataset.lighthouse) {
+    pauseWalkWithMe();
     state.activeLighthouse = button.dataset.lighthouse;
     state.detailOpen = "lighthouse";
     render();

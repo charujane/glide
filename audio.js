@@ -2,6 +2,8 @@ import { upload } from "@vercel/blob/client";
 
 const PIN_KEY = "glide-audio-pin";
 const DEFAULT_AMBIENT_VOLUME = 15;
+const LOCAL_AUDIO_DB = "glide-local-audio-v1";
+const LOCAL_AUDIO_STORE = "recordings";
 const audio = new Audio();
 audio.preload = "metadata";
 
@@ -19,6 +21,98 @@ let objectUrl = null;
 let ambience = null;
 let introPlayed = false;
 let playbackGeneration = 0;
+let localAudioDbPromise = null;
+let localAudioSyncPromise = Promise.resolve();
+
+function openLocalAudioDb() {
+  if (!window.indexedDB) return Promise.reject(new Error("Local audio storage is not supported in this browser."));
+  if (localAudioDbPromise) return localAudioDbPromise;
+  localAudioDbPromise = new Promise((resolve, reject) => {
+    const request = indexedDB.open(LOCAL_AUDIO_DB, 1);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(LOCAL_AUDIO_STORE)) {
+        db.createObjectStore(LOCAL_AUDIO_STORE, { keyPath: "itemId" });
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error || new Error("Local audio storage could not be opened."));
+  });
+  return localAudioDbPromise;
+}
+
+async function localAudioRequest(mode, operation) {
+  const db = await openLocalAudioDb();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(LOCAL_AUDIO_STORE, mode);
+    const store = transaction.objectStore(LOCAL_AUDIO_STORE);
+    let request;
+    let result;
+    try {
+      request = operation(store);
+    } catch (error) {
+      reject(error);
+      return;
+    }
+    request.onsuccess = () => { result = request.result; };
+    request.onerror = () => reject(request.error || new Error("Local audio storage failed."));
+    transaction.oncomplete = () => resolve(result);
+    transaction.onerror = () => reject(transaction.error || new Error("Local audio storage failed."));
+    transaction.onabort = () => reject(transaction.error || new Error("Local audio storage was interrupted."));
+  });
+}
+
+async function saveLocalAudioRecording(itemId, blob, updatedAt = new Date().toISOString()) {
+  if (!itemId || !(blob instanceof Blob) || !blob.size) return false;
+  await localAudioRequest("readwrite", (store) => store.put({ itemId, blob, updatedAt }));
+  navigator.storage?.persist?.().catch(() => {});
+  return true;
+}
+
+async function getLocalAudioRecord(itemId) {
+  return localAudioRequest("readonly", (store) => store.get(itemId));
+}
+
+async function deleteLocalAudioRecording(itemId) {
+  return localAudioRequest("readwrite", (store) => store.delete(itemId));
+}
+
+export async function listLocalAudioRecordings() {
+  try {
+    const records = await localAudioRequest("readonly", (store) => store.getAll());
+    return records.filter((record) => record?.itemId && record.blob instanceof Blob && record.blob.size);
+  } catch {
+    return [];
+  }
+}
+
+export async function waitForLocalAudioSync() {
+  await localAudioSyncPromise.catch(() => {});
+}
+
+export async function prepareLocalAudioLibrary() {
+  // Walk With Me never initiates a network request. It only waits for a sync
+  // that may already be running because the voice studio was unlocked online.
+  await waitForLocalAudioSync();
+  return listLocalAudioRecordings();
+}
+
+function beginLocalAudioSync() {
+  if (!getPin() || !metadataLoaded) return;
+  localAudioSyncPromise = (async () => {
+    for (const [itemId, record] of Object.entries(metadata)) {
+      try {
+        const local = await getLocalAudioRecord(itemId);
+        if (local?.blob?.size && local.updatedAt === record.updatedAt) continue;
+        const response = await api(`/api/audio?itemId=${encodeURIComponent(itemId)}`);
+        const blob = await response.blob();
+        await saveLocalAudioRecording(itemId, blob, record.updatedAt);
+      } catch {
+        // Cloud availability never prevents already-local recordings from playing.
+      }
+    }
+  })();
+}
 
 const getPin = () => sessionStorage.getItem(PIN_KEY) || "";
 
@@ -68,6 +162,7 @@ async function loadMetadata(force = false) {
   const response = await api("/api/audio?metadata=1");
   metadata = await response.json();
   metadataLoaded = true;
+  beginLocalAudioSync();
   return metadata;
 }
 
@@ -199,8 +294,16 @@ async function uploadRecording(recordedBlob, itemId) {
   };
   await api("/api/audio", { method: "POST", body: JSON.stringify({ action: "save", itemId, record }) });
   metadata[itemId] = record;
+  let savedOffline = true;
+  try {
+    await saveLocalAudioRecording(itemId, recordedBlob, record.updatedAt);
+  } catch {
+    savedOffline = false;
+  }
   if (activeItemId === itemId) {
-    setStatus("Saved privately to your voice library.", "saved");
+    setStatus(savedOffline
+      ? "Saved privately and available for offline walks."
+      : "Saved privately. This device could not keep an offline copy.", "saved");
     updateStudio();
   }
 }
@@ -211,9 +314,14 @@ export async function saveVoiceNoteBlob(recordedBlob, itemId) {
 }
 
 export async function playSavedVoiceNote(itemId) {
-  if (!getPin()) throw new Error("Enter your recording PIN to listen.");
-  const response = await api(`/api/audio?itemId=${encodeURIComponent(itemId)}`);
-  const blob = await response.blob();
+  let local = await getLocalAudioRecord(itemId).catch(() => null);
+  let blob = local?.blob;
+  if (!blob) {
+    if (!getPin()) throw new Error("Enter your recording PIN to listen.");
+    const response = await api(`/api/audio?itemId=${encodeURIComponent(itemId)}`);
+    blob = await response.blob();
+    await saveLocalAudioRecording(itemId, blob, metadata[itemId]?.updatedAt).catch(() => {});
+  }
   const url = URL.createObjectURL(blob);
   const clip = new Audio(url);
   clip.onended = () => URL.revokeObjectURL(url);
@@ -226,6 +334,7 @@ async function deleteRecording() {
   if (!metadata[activeItemId]) return;
   if (!window.confirm("Delete this voice recording? This cannot be undone.")) return;
   await api("/api/audio", { method: "POST", body: JSON.stringify({ action: "delete", itemId: activeItemId }) });
+  await deleteLocalAudioRecording(activeItemId).catch(() => {});
   delete metadata[activeItemId];
   localBlob = null;
   clearAudioSource();
@@ -246,10 +355,16 @@ function clearAudioSource() {
 async function ensureAudioSource() {
   if (audio.src) return;
   let blob = localBlob;
+  if (!blob) {
+    const local = await getLocalAudioRecord(activeItemId).catch(() => null);
+    blob = local?.blob;
+    if (blob) localBlob = blob;
+  }
   if (!blob && metadata[activeItemId]) {
     setStatus("Preparing your recording…", "working");
     const response = await api(`/api/audio?itemId=${encodeURIComponent(activeItemId)}`);
     blob = await response.blob();
+    await saveLocalAudioRecording(activeItemId, blob, metadata[activeItemId]?.updatedAt).catch(() => {});
   }
   if (!blob) throw new Error("Record your voice first.");
   objectUrl = URL.createObjectURL(blob);

@@ -294,6 +294,20 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 .transcript-block .energy-context { white-space:pre-line; }
 .guide-page { display:grid; grid-template-columns:minmax(0,.88fr) minmax(380px,.72fr); gap:clamp(40px,7vw,100px); align-items:center; min-height:calc(100vh - 210px); }
 .guide-intro { margin:22px 0 33px; }
+.walk-with-me { margin:0 0 34px; padding:28px; border:1px solid var(--line); border-radius:24px; background:rgba(255,253,247,.84); }
+.walk-with-me small { color:var(--blue); font-size:9px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; }
+.walk-start h3,.walk-playing h3 { margin:10px 0 13px; font:500 29px/1.16 Georgia,serif; letter-spacing:-.025em; }
+.walk-start blockquote { margin:0 0 21px; color:var(--muted); font:italic 17px/1.5 Georgia,serif; }
+.walk-play { display:flex; width:100%; min-height:70px; align-items:center; justify-content:center; gap:12px; border:0; border-radius:19px; background:var(--ink); color:white; cursor:pointer; font-size:19px; }
+.walk-play span { font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
+.walk-play:disabled { cursor:wait; opacity:.65; }
+.walk-tagline,.walk-status { margin:15px 0 0; color:var(--muted); font-size:11px; line-height:1.6; }
+.walk-status { color:#476d5d; }
+.walk-controls { display:grid; grid-template-columns:1fr 64px 1fr; gap:10px; align-items:center; margin-top:24px; }
+.walk-controls button { min-height:48px; border:1px solid var(--line); border-radius:16px; background:transparent; color:var(--ink); cursor:pointer; font-size:13px; }
+.walk-controls button:disabled { cursor:default; opacity:.28; }
+.walk-controls button span { font-size:10px; font-weight:700; }
+.walk-controls .walk-main-control { width:64px; height:64px; border:0; border-radius:50%; background:var(--ink); color:white; font-size:20px; }
 #guide-form label,dialog label,.anchor-card label { display:block; color:#526057; font-size:10px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; }
 #guide-form textarea,dialog input,dialog textarea,.anchor-card input { width:100%; border:1px solid var(--line); background:rgba(255,253,247,.78); color:var(--ink); }
 #guide-form textarea { display:block; min-height:180px; margin-top:10px; padding:19px; resize:vertical; border-radius:19px; font:18px/1.6 Georgia,serif; }
@@ -368,6 +382,9 @@ dialog .primary-button { margin-top:23px; }
   .status-actions { display:grid; grid-template-columns:repeat(3,1fr); }
   .status-actions button { justify-content:center; padding:10px 6px; font-size:9px; }
   .section-heading h2,.guide-copy h2 { font-size:47px; }
+  .walk-with-me { padding:22px 18px; }
+  .walk-start h3,.walk-playing h3 { font-size:27px; }
+  .walk-controls button span { display:none; }
   .hearth-heading h2 { font-size:45px; }
   .hearth-note { margin-bottom:25px; }
   .hearth-group { padding:20px; border-radius:22px; }
